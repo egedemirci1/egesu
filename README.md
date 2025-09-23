@@ -1,4 +1,4 @@
-# EgeSu Memories - Deployed to Vercel
+# EgeSu Memories - Deployed to Vercel ✅
 
 EgeSu Memories, birlikte yaşadığınız güzel anıları saklamak için özel olarak tasarlanmış bir Next.js uygulamasıdır. Tek hesaplı güvenli giriş, Türkiye şehirleri işaretleme, foto/video yükleme ve özel mektuplar gibi özellikler sunar.
 
