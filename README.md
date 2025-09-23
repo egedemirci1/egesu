@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EgeSu Memories
 
-## Getting Started
+EgeSu Memories, birlikte yaşadığınız güzel anıları saklamak için özel olarak tasarlanmış bir Next.js uygulamasıdır. Tek hesaplı güvenli giriş, Türkiye şehirleri işaretleme, foto/video yükleme ve özel mektuplar gibi özellikler sunar.
 
-First, run the development server:
+## Özellikler
+
+- 🔐 **Tek Hesaplı Güvenli Giriş**: Sadece belirlenen kullanıcı adı ve şifre ile giriş
+- 🏙️ **Şehir İşaretleme**: Türkiye'nin 81 ilini grid görünümünde işaretleme
+- 📸 **Foto/Video Yükleme**: Anılarınızı fotoğraf ve videolarla zenginleştirme
+- 📝 **Özel Mektuplar**: Birbirinize yazdığınız mektupları saklama
+- 📅 **Yıldönümleri**: Özel günlerinizi takip etme
+- 🎨 **Modern UI**: Pastel renkler ve yumuşak tasarım
+- 📱 **Responsive**: Mobil ve masaüstü uyumlu
+- 🔒 **Güvenli**: Tüm veriler server-side işlenir
+
+## Teknolojiler
+
+- **Next.js 14+** (App Router, TypeScript)
+- **TailwindCSS** + **shadcn/ui**
+- **Supabase** (PostgreSQL + Storage)
+- **JWT Authentication** (jose)
+- **bcrypt** (şifre hashleme)
+
+## Kurulum
+
+### 1. Projeyi Klonlayın
+
+```bash
+git clone <repository-url>
+cd egesu-memories
+```
+
+### 2. Bağımlılıkları Yükleyin
+
+```bash
+npm install
+```
+
+### 3. Çevre Değişkenlerini Ayarlayın
+
+`.env.local` dosyası oluşturun:
+
+```env
+# Authentication
+APP_USERNAME=egesu
+APP_PASSWORD_HASH=$2b$10$blm1zfy6zS//eDek11W6Z.75RfG36ny.qrvz9OX9cwL5wpX0Q1hPe
+APP_SESSION_SECRET=your-super-secret-session-key-32-chars-long
+
+# Supabase
+SUPABASE_URL=your-supabase-url
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+```
+
+### 4. Supabase Veritabanını Kurun
+
+1. [Supabase](https://supabase.com) hesabı oluşturun
+2. Yeni proje oluşturun
+3. SQL Editor'da `supabase/migrations/001_initial_schema.sql` dosyasını çalıştırın
+4. Storage bucket'ı oluşturun (memories)
+
+### 5. Geliştirme Sunucusunu Başlatın
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresinde uygulamayı görüntüleyin.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Giriş Bilgileri
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Kullanıcı Adı**: `egesu`
+- **Şifre**: `seniseviyorum`
 
-## Learn More
+## Şifre Hash'i Oluşturma
 
-To learn more about Next.js, take a look at the following resources:
+Yeni bir şifre hash'i oluşturmak için:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+node -e "console.log(require('bcryptjs').hashSync('your-password',10))"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Vercel'e Deploy
 
-## Deploy on Vercel
+### 1. Vercel'e Bağlayın
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm install -g vercel
+vercel
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. Çevre Değişkenlerini Ayarlayın
+
+Vercel dashboard'da aşağıdaki çevre değişkenlerini ekleyin:
+
+- `APP_USERNAME`
+- `APP_PASSWORD_HASH`
+- `APP_SESSION_SECRET`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+### 3. Deploy Edin
+
+```bash
+vercel --prod
+```
+
+## Proje Yapısı
+
+```
+egesu-memories/
+├── src/
+│   ├── app/
+│   │   ├── api/           # API routes
+│   │   ├── cities/        # Şehirler sayfası
+│   │   ├── albums/        # Albümler sayfası
+│   │   ├── letters/       # Mektuplar sayfası
+│   │   ├── anniversaries/ # Yıldönümleri sayfası
+│   │   ├── settings/      # Ayarlar sayfası
+│   │   └── login/         # Giriş sayfası
+│   ├── components/        # React bileşenleri
+│   ├── constants/         # Sabitler (şehirler)
+│   └── lib/              # Yardımcı fonksiyonlar
+├── supabase/
+│   └── migrations/       # Veritabanı migration'ları
+└── public/               # Statik dosyalar
+```
+
+## Güvenlik
+
+- Tüm API işlemleri server-side yapılır
+- Kullanıcı bilgileri client'a sızmaz
+- HTTP-only, SameSite=Strict cookie kullanılır
+- Rate limiting ile brute-force koruması
+- Şifreler bcrypt ile hashlenir
+
+## Lisans
+
+Bu proje özel kullanım için tasarlanmıştır.
