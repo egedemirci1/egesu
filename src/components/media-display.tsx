@@ -23,7 +23,7 @@ interface MediaDisplayProps {
   className?: string;
 }
 
-// Lazy Loading Image Component
+// Lazy Loading Image Component with Performance Optimization
 function LazyImage({ src, alt, className }: { src: string; alt: string; className: string }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -57,6 +57,8 @@ function LazyImage({ src, alt, className }: { src: string; alt: string; classNam
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setIsLoaded(true)}
+          loading="lazy"
+          decoding="async"
         />
       )}
       {!isLoaded && (

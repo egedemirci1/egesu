@@ -191,7 +191,7 @@ export default function LoginPage() {
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className={`transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-          <Card className="w-full bg-white/80 backdrop-blur-xl border-0 shadow-2xl shadow-green-500/20" style={{ maxWidth: '800px', minWidth: '600px' }}>
+          <Card className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl bg-white/80 backdrop-blur-xl border-0 shadow-2xl shadow-green-500/20">
             <CardHeader className="text-center pb-8">
               {/* Animated Logo */}
               <div className="flex justify-center mb-6">
@@ -212,7 +212,7 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="px-12 pb-12">
+            <CardContent className="px-4 sm:px-8 md:px-12 pb-8 sm:pb-12">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-3">
                   <Label htmlFor="username" className="text-gray-700 font-medium flex items-center gap-2">
