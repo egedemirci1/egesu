@@ -9,7 +9,7 @@ EgeSu Memories, birlikte yaşadığınız güzel anıları saklamak için özel 
 - 📸 **Foto/Video Yükleme**: Anılarınızı fotoğraf ve videolarla zenginleştirme
 - 📝 **Özel Mektuplar**: Birbirinize yazdığınız mektupları saklama
 - 📅 **Yıldönümleri**: Özel günlerinizi takip etme
-- 🎵 **Şarkılar**: Kategorilere ayrılmış müzik koleksiyonu
+- 🎵 **Şarkılar**: Kategorilere ayrılmış müzik koleksiyonu (Tümü, Hareketli, Sakin, Klasik, Romantik, Nostaljik)
 - 🎨 **Modern UI**: Pastel renkler ve yumuşak tasarım
 - 📱 **Responsive**: Mobil ve masaüstü uyumlu
 - 🔒 **Güvenli**: Tüm veriler server-side işlenir
