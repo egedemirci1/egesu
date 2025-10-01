@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Navigation } from '@/components/navigation';
+import { StorageUsage } from '@/components/storage-usage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -59,8 +60,9 @@ export default function SettingsPage() {
         </div>
 
         <Tabs defaultValue="appearance" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="appearance">Görünüm</TabsTrigger>
+            <TabsTrigger value="storage">Depolama</TabsTrigger>
             <TabsTrigger value="data">Veri</TabsTrigger>
           </TabsList>
           
@@ -150,6 +152,10 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="storage" className="space-y-6">
+            <StorageUsage />
           </TabsContent>
           
           <TabsContent value="data" className="space-y-6">
