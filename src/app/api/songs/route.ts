@@ -10,20 +10,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all songs
-    const { data: songs, error: songsError } = await supabase
+    // Get category filter from query parameters
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+
+    // Build query
+    let query = supabase
       .from('songs')
       .select('*')
       .order('created_at', { ascending: false });
 
+    // Apply category filter if specified and not 'tumu' (all)
+    if (category && category !== 'tumu') {
+      query = query.eq('category', category);
+    }
+
+    const { data: songs, error: songsError } = await query;
+
     if (songsError) {
-      console.error('Error fetching songs:', songsError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching songs:', songsError);
+      }
       return NextResponse.json({ error: 'Failed to fetch songs' }, { status: 500 });
     }
 
     return NextResponse.json(songs || []);
   } catch (error) {
-    console.error('Get songs API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Get songs API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -37,10 +52,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, artist, youtube_url, youtube_id, thumbnail_url } = body;
+    const { title, artist, youtube_url, youtube_id, thumbnail_url, category = 'tumu' } = body;
 
     if (!title || !artist || !youtube_url || !youtube_id) {
       return NextResponse.json({ error: 'Title, artist, youtube_url, and youtube_id are required' }, { status: 400 });
+    }
+
+    // Validate category
+    const validCategories = ['tumu', 'hareketli', 'sakin', 'klasik', 'romantik', 'nostaljik'];
+    if (!validCategories.includes(category)) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
     // Create the song
@@ -51,19 +72,24 @@ export async function POST(request: NextRequest) {
         artist,
         youtube_url,
         youtube_id,
-        thumbnail_url: thumbnail_url || `https://img.youtube.com/vi/${youtube_id}/maxresdefault.jpg`
+        thumbnail_url: thumbnail_url || `https://img.youtube.com/vi/${youtube_id}/maxresdefault.jpg`,
+        category
       })
       .select()
       .single();
 
     if (songError) {
-      console.error('Supabase error creating song:', songError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Supabase error creating song:', songError);
+      }
       return NextResponse.json({ error: 'Failed to create song', details: songError.message }, { status: 500 });
     }
 
     return NextResponse.json(song);
   } catch (error) {
-    console.error('Create song API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Create song API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
@@ -90,13 +116,17 @@ export async function DELETE(request: NextRequest) {
       .eq('id', songId);
 
     if (deleteError) {
-      console.error('Error deleting song:', deleteError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error deleting song:', deleteError);
+      }
       return NextResponse.json({ error: 'Failed to delete song' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete song API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Delete song API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

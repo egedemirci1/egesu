@@ -248,6 +248,39 @@
   }
 }
 
+@keyframes emojiFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px) rotate(3deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-25px) translateX(-5px) rotate(-2deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-10px) translateX(8px) rotate(1deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes emojiDrift {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  10%, 90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(calc(100vw + 100px));
+    opacity: 0;
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -262,4 +295,12 @@
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+.animate-emoji-float {
+  animation: emojiFloat 8s ease-in-out infinite;
+}
+
+.animate-emoji-drift {
+  animation: emojiDrift 15s linear infinite;
 }

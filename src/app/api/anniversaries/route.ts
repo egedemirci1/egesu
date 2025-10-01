@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySession } from '@/lib/auth';
+import { checkContentRateLimit, recordContentCreation, getClientIP, sanitizeContent, detectSpamPatterns } from '@/lib/spam-protection';
 
 export async function GET() {
   try {
@@ -22,13 +23,17 @@ export async function GET() {
       .order('date', { ascending: true });
 
     if (error) {
-      console.error('Error fetching anniversaries:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching anniversaries:', error);
+      }
       return NextResponse.json({ error: 'Failed to fetch anniversaries' }, { status: 500 });
     }
 
     return NextResponse.json(anniversaries || []);
   } catch (error) {
-    console.error('Anniversaries API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Anniversaries API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -41,6 +46,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check spam protection
+    const ip = getClientIP(request);
+    if (!checkContentRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const requestBody = await request.json();
     const { title, date, repeat } = requestBody;
 
@@ -48,10 +59,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title and date are required' }, { status: 400 });
     }
 
+    // Sanitize and validate content
+    const sanitizedTitle = sanitizeContent(title);
+
+    // Check for spam patterns
+    if (detectSpamPatterns(sanitizedTitle)) {
+      return NextResponse.json({ error: 'Content appears to be spam' }, { status: 400 });
+    }
+
     const { data: anniversary, error } = await supabase
       .from('anniversaries')
       .insert({
-        title,
+        title: sanitizedTitle,
         date,
         repeat: repeat !== false, // Default to true
       })
@@ -59,13 +78,20 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating anniversary:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error creating anniversary:', error);
+      }
       return NextResponse.json({ error: 'Failed to create anniversary' }, { status: 500 });
     }
 
+    // Record successful content creation
+    recordContentCreation(ip);
+
     return NextResponse.json(anniversary);
   } catch (error) {
-    console.error('Create anniversary API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Create anniversary API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

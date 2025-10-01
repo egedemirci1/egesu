@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Music, Plus, Heart, Trash2, Play } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Music, Plus, Heart, Trash2, Play, Loader2, Filter } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 
 // Set page title
@@ -23,6 +24,7 @@ interface SongData {
   youtube_id: string;
   thumbnail_url: string;
   created_at: string;
+  category: string;
 }
 
 export default function SongsPage() {
@@ -31,20 +33,36 @@ export default function SongsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [deletingSong, setDeletingSong] = useState<string | null>(null);
   const [isAddSongOpen, setIsAddSongOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('tumu');
   const [newSong, setNewSong] = useState({
     title: '',
     artist: '',
-    youtube_url: ''
+    youtube_url: '',
+    category: 'tumu'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const categories = [
+    { value: 'tumu', label: 'Tümü', icon: '🎵' },
+    { value: 'hareketli', label: 'Hareketli', icon: '💃' },
+    { value: 'sakin', label: 'Sakin', icon: '🌙' },
+    { value: 'klasik', label: 'Klasik', icon: '🎼' },
+    { value: 'romantik', label: 'Romantik', icon: '💕' },
+    { value: 'nostaljik', label: 'Nostaljik', icon: '📻' }
+  ];
+
   useEffect(() => {
     fetchSongs();
-  }, []);
+  }, [selectedCategory]);
 
   const fetchSongs = async () => {
     try {
-      const response = await fetch('/api/songs');
+      setIsLoading(true);
+      const url = selectedCategory === 'tumu' 
+        ? '/api/songs' 
+        : `/api/songs?category=${selectedCategory}`;
+      
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setSongs(data);
@@ -91,7 +109,7 @@ export default function SongsPage() {
       if (response.ok) {
         fetchSongs();
         setIsAddSongOpen(false);
-        setNewSong({ title: '', artist: '', youtube_url: '' });
+        setNewSong({ title: '', artist: '', youtube_url: '', category: 'tumu' });
       } else {
         alert('Şarkı eklenirken bir hata oluştu.');
       }
@@ -141,8 +159,32 @@ export default function SongsPage() {
             Şarkılarımız
           </h1>
           <p className="text-lg text-gray-600 mb-6">
-            Aşkımızın Müzikli Hikayesi
+            Seni Hatırlatan Parçalar
           </p>
+          
+          {/* Category Filter */}
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {categories.map((category) => (
+              <Button
+                key={category.value}
+                variant={selectedCategory === category.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category.value)}
+                className={`flex items-center space-x-2 transition-all duration-200 ${
+                  selectedCategory === category.value
+                    ? theme === 'green-theme'
+                      ? 'bg-green-500 hover:bg-green-600 text-white'
+                      : 'bg-pink-500 hover:bg-pink-600 text-white'
+                    : theme === 'green-theme'
+                    ? 'border-green-300 text-green-700 hover:bg-green-50'
+                    : 'border-pink-300 text-pink-700 hover:bg-pink-50'
+                }`}
+              >
+                <span className="text-lg">{category.icon}</span>
+                <span>{category.label}</span>
+              </Button>
+            ))}
+          </div>
           
           <Dialog open={isAddSongOpen} onOpenChange={setIsAddSongOpen}>
             <DialogTrigger asChild>
@@ -190,6 +232,24 @@ export default function SongsPage() {
                     placeholder="https://music.youtube.com/watch?v=..."
                   />
                 </div>
+                <div>
+                  <Label htmlFor="category">Kategori</Label>
+                  <Select value={newSong.category} onValueChange={(value) => setNewSong({ ...newSong, category: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Kategori seçin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.filter(cat => cat.value !== 'tumu').map((category) => (
+                        <SelectItem key={category.value} value={category.value}>
+                          <div className="flex items-center space-x-2">
+                            <span>{category.icon}</span>
+                            <span>{category.label}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex justify-end space-x-2">
                   <Button
                     variant="outline"
@@ -215,18 +275,48 @@ export default function SongsPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="bg-white/60 backdrop-blur-sm border-pink-200">
-                <CardHeader>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-32 bg-gray-200 rounded animate-pulse"></div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="relative">
+              {/* Pulsing heart icon */}
+              <Music className={`h-16 w-16 ${
+                theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
+              } animate-pulse mb-4`} />
+              
+              {/* Spinning loader */}
+              <Loader2 className={`absolute -top-2 -right-2 h-6 w-6 ${
+                theme === 'green-theme' ? 'text-green-400' : 'text-pink-400'
+              } animate-spin`} />
+            </div>
+            
+            <div className="text-center space-y-2">
+              <h3 className={`text-xl font-medium ${
+                theme === 'green-theme' ? 'text-green-700' : 'text-pink-700'
+              }`}>
+                Şarkılar Yükleniyor...
+              </h3>
+              <p className={`text-lg ${
+                theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+              }`}>
+                Aşkın müziği hazırlanıyor ✨
+              </p>
+            </div>
+            
+            {/* Skeleton cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 w-full">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className={`bg-white/60 backdrop-blur-sm animate-pulse ${
+                  theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+                }`}>
+                  <CardHeader>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-32 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         ) : songs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -257,8 +347,15 @@ export default function SongsPage() {
                       }`} />
                     </Button>
                   </CardTitle>
-                  <CardDescription>
-                    {song.artist}
+                  <CardDescription className="flex items-center justify-between">
+                    <span>{song.artist}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      theme === 'green-theme' 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-pink-100 text-pink-700'
+                    }`}>
+                      {categories.find(cat => cat.value === song.category)?.icon} {categories.find(cat => cat.value === song.category)?.label}
+                    </span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

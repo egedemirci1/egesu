@@ -1,22 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
+import { securityHeaders } from './middleware-security';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow login page and API routes
   if (pathname === '/login' || pathname.startsWith('/api/')) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return securityHeaders(response);
   }
 
   // Check session
   const session = await verifySession();
 
   if (!session?.isLoggedIn) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    return securityHeaders(response);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  return securityHeaders(response);
 }
 
 export const config = {

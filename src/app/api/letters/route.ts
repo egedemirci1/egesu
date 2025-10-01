@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySession } from '@/lib/auth';
+import { checkContentRateLimit, recordContentCreation, getClientIP, sanitizeContent, detectSpamPatterns } from '@/lib/spam-protection';
 
 export async function GET() {
   try {
@@ -16,13 +17,17 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching letters:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching letters:', error);
+      }
       return NextResponse.json({ error: 'Failed to fetch letters' }, { status: 500 });
     }
 
     return NextResponse.json(letters);
   } catch (error) {
-    console.error('Get letters API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Get letters API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -35,26 +40,48 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check spam protection
+    const ip = getClientIP(request);
+    if (!checkContentRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const { title, body } = await request.json();
 
     if (!title || !body) {
       return NextResponse.json({ error: 'Title and body are required' }, { status: 400 });
     }
 
+    // Sanitize and validate content
+    const sanitizedTitle = sanitizeContent(title);
+    const sanitizedBody = sanitizeContent(body);
+
+    // Check for spam patterns
+    if (detectSpamPatterns(sanitizedBody)) {
+      return NextResponse.json({ error: 'Content appears to be spam' }, { status: 400 });
+    }
+
     const { data: letter, error } = await supabase
       .from('letters')
-      .insert([{ title, body }])
+      .insert([{ title: sanitizedTitle, body: sanitizedBody }])
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating letter:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error creating letter:', error);
+      }
       return NextResponse.json({ error: 'Failed to create letter' }, { status: 500 });
     }
 
+    // Record successful content creation
+    recordContentCreation(ip);
+
     return NextResponse.json(letter);
   } catch (error) {
-    console.error('Create letter API error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Create letter API error:', error);
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

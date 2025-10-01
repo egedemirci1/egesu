@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, Plus, Heart, Trash2, Lock } from 'lucide-react';
+import { Mail, Plus, Heart, Trash2, Lock, Loader2 } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 
 // Set page title
@@ -191,24 +191,23 @@ export default function LettersPage() {
         </div>
 
         {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} className={`bg-white/60 backdrop-blur-sm ${
-                theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
-              }`}>
-                <CardHeader>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-3 bg-gray-200 rounded animate-pulse w-1/3"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="text-center py-12">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="relative">
+                <Mail className={`h-12 w-12 ${
+                  theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
+                } animate-pulse`} />
+                <Loader2 className={`absolute -top-1 -right-1 h-6 w-6 ${
+                  theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+                } animate-spin`} />
+              </div>
+              <div className="space-y-2">
+                <p className={`font-medium ${
+                  theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+                }`}>Mektuplar yükleniyor...</p>
+                <p className="text-gray-500 text-sm">Aşkın mektupları hazırlanıyor ✨</p>
+              </div>
+            </div>
           </div>
         ) : letters.length > 0 ? (
           <div className="space-y-6">

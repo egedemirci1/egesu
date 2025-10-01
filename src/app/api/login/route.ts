@@ -3,11 +3,14 @@ import { login, createSession, checkRateLimit, recordFailedAttempt, clearFailedA
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Login attempt started');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Login attempt started');
+    }
     const { username, password } = await request.json();
-    console.log('Username:', username);
-    console.log('APP_USERNAME:', process.env.APP_USERNAME);
-    console.log('APP_PASSWORD_HASH exists:', !!process.env.APP_PASSWORD_HASH);
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Login attempt for user:', username);
+    }
 
     if (!username || !password) {
       return NextResponse.json(
@@ -55,7 +58,9 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Login error:', error);
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

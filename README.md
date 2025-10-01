@@ -9,6 +9,7 @@ EgeSu Memories, birlikte yaşadığınız güzel anıları saklamak için özel 
 - 📸 **Foto/Video Yükleme**: Anılarınızı fotoğraf ve videolarla zenginleştirme
 - 📝 **Özel Mektuplar**: Birbirinize yazdığınız mektupları saklama
 - 📅 **Yıldönümleri**: Özel günlerinizi takip etme
+- 🎵 **Şarkılar**: Kategorilere ayrılmış müzik koleksiyonu
 - 🎨 **Modern UI**: Pastel renkler ve yumuşak tasarım
 - 📱 **Responsive**: Mobil ve masaüstü uyumlu
 - 🔒 **Güvenli**: Tüm veriler server-side işlenir
@@ -42,8 +43,8 @@ npm install
 
 ```env
 # Authentication
-APP_USERNAME=egesu
-APP_PASSWORD_HASH=$2b$10$blm1zfy6zS//eDek11W6Z.75RfG36ny.qrvz9OX9cwL5wpX0Q1hPe
+APP_USERNAME=your-username
+APP_PASSWORD_HASH=your-bcrypt-hash
 APP_SESSION_SECRET=your-super-secret-session-key-32-chars-long
 
 # Supabase
@@ -69,7 +70,7 @@ npm run dev
 ## Giriş Bilgileri
 
 - **Kullanıcı Adı**: `egesu`
-- **Şifre**: `seniseviyorum`
+- **Şifre**: `[Çevre değişkenlerinden alınır]`
 
 ## Şifre Hash'i Oluşturma
 

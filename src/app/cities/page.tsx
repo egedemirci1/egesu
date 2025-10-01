@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { CITIES } from '@/constants/cities';
-import { MapPin, Heart } from 'lucide-react';
+import { MapPin, Heart, Loader2 } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 
 // Set page title
@@ -24,12 +24,14 @@ interface Memory {
 export default function CitiesPage() {
   const { theme } = useTheme();
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchMemories();
   }, []);
 
   const fetchMemories = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/memories');
       if (response.ok) {
@@ -38,6 +40,8 @@ export default function CitiesPage() {
       }
     } catch (error) {
       console.error('Error fetching memories:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -68,24 +72,55 @@ export default function CitiesPage() {
           <div className={`bg-white/60 backdrop-blur-sm rounded-lg p-6 inline-block border ${
             theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
           }`}>
-            <div className="flex items-center justify-center space-x-2">
-              <MapPin className={`h-6 w-6 ${
-                theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
-              }`} />
-              <span className="text-2xl font-bold text-gray-800">
-                {visitedCount}/81
-              </span>
-              <span className="text-gray-600">şehir ziyaret edildi</span>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <MapPin className={`h-6 w-6 ${
+                  theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
+                }`} />
+                <div className="flex items-center space-x-2">
+                  <Loader2 className={`h-5 w-5 animate-spin ${
+                    theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
+                  }`} />
+                  <span className="text-lg font-medium text-gray-600">Şehirler hesaplanıyor...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center space-x-2">
+                <MapPin className={`h-6 w-6 ${
+                  theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
+                }`} />
+                <span className="text-2xl font-bold text-gray-800">
+                  {visitedCount}/81
+                </span>
+                <span className="text-gray-600">şehir ziyaret edildi</span>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {CITIES.map((city) => {
-            const isVisited = visitedCities.has(city.code);
-            const cityMemories = getCityMemories(city.code);
-            
-            return (
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 12 }, (_, i) => (
+              <Card key={i} className="bg-white/60 border-gray-200 animate-pulse">
+                <CardHeader className="p-3">
+                  <CardTitle className="text-center text-sm font-medium">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-2 pt-0">
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {CITIES.map((city) => {
+              const isVisited = visitedCities.has(city.code);
+              const cityMemories = getCityMemories(city.code);
+              
+              return (
               <Sheet key={city.code}>
                 <SheetTrigger asChild>
                   <Card 
@@ -169,9 +204,10 @@ export default function CitiesPage() {
                   </div>
                 </SheetContent>
               </Sheet>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </main>
     </div>
   );

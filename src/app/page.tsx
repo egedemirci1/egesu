@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UploadComponent, UploadedFile } from '@/components/upload';
 import { MediaDisplay } from '@/components/media-display';
-import { Plus, Heart, Calendar, MapPin, Trash2, ImagePlus } from 'lucide-react';
+import { Plus, Heart, Calendar, MapPin, Trash2, ImagePlus, Loader2 } from 'lucide-react';
 import { CITIES } from '@/constants/cities';
 import { useTheme } from '@/lib/theme';
 
@@ -58,12 +58,14 @@ export default function HomePage() {
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [memoriesPerPage] = useState(5); // Her sayfada 5 memory göster
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchMemories();
   }, []);
 
   const fetchMemories = async () => {
+    setIsLoading(true);
     try {
       console.log('Fetching memories...');
       const response = await fetch('/api/memories');
@@ -79,6 +81,8 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error('Error fetching memories:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -448,12 +452,25 @@ export default function HomePage() {
             </h2>
             {memories.length > 0 && (
               <p className="text-sm text-gray-600 mt-2">
-                Toplam {memories.length} anı • Sayfa {currentPage}/{totalPages}
+                Toplam {memories.length} Anı • Sayfa {currentPage}/{totalPages}
               </p>
             )}
           </div>
           
-          {memories.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  <Heart className="h-12 w-12 text-green-500 animate-pulse" />
+                  <Loader2 className="absolute -top-1 -right-1 h-6 w-6 text-green-600 animate-spin" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-green-600 font-medium">Anılar yükleniyor...</p>
+                  <p className="text-gray-500 text-sm">Aşkın büyüsü hazırlanıyor ✨</p>
+                </div>
+              </div>
+            </div>
+          ) : memories.length === 0 ? (
             <div className="text-center py-12">
               <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">Henüz anı eklenmemiş. İlk anınızı ekleyin!</p>

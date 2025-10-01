@@ -14,7 +14,6 @@ const navigation = [
   { name: 'Şarkılar', href: '/songs', icon: Music },
   { name: 'Mektuplar', href: '/letters', icon: Mail },
   { name: 'Yıldönümleri', href: '/anniversaries', icon: Calendar },
-  { name: 'Ayarlar', href: '/settings', icon: Settings },
 ];
 
 export function Navigation() {
@@ -92,6 +91,24 @@ export function Navigation() {
                 <Menu className="h-5 w-5" />
               )}
             </Button>
+            
+            {/* Settings Button */}
+            <Link href="/settings">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`text-gray-600 hover:text-gray-900 transition-colors ${
+                  pathname === '/settings'
+                    ? theme === 'green-theme' 
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      : 'bg-pink-100 text-pink-700 hover:bg-pink-200'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Ayarlar</span>
+              </Button>
+            </Link>
             
             {/* Logout Button */}
             <Button

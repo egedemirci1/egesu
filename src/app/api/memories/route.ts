@@ -1,21 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySession } from '@/lib/auth';
+import { PerformanceMonitor } from '@/lib/performance';
+import { cache, CacheKeys, cached } from '@/lib/cache';
+
+// Cached function for fetching memories
+const fetchMemoriesCached = cached(
+  async () => {
+    const stopTimer = PerformanceMonitor.startTimer('memories-fetch');
+    
+    // Fetch memories without media first to avoid join issues
+    const { data: memories, error: memoriesError } = await supabase
+      .from('memories')
+      .select('*')
+      .order('taken_at', { ascending: false });
+
+    if (memoriesError) {
+      throw memoriesError;
+    }
+
+    // Fetch media files separately for each memory (batch processing)
+    const memoriesWithMedia = await Promise.all(
+      (memories || []).map(async (memory) => {
+        const { data: mediaFiles, error: mediaError } = await supabase
+          .from('media')
+          .select('*')
+          .eq('memory_id', memory.id);
+
+        if (mediaError) {
+          if (process.env.NODE_ENV === 'development') {
+            console.error(`Error fetching media for memory ${memory.id}:`, mediaError);
+          }
+          return {
+            ...memory,
+            media: []
+          };
+        }
+
+        return {
+          ...memory,
+          media: mediaFiles || []
+        };
+      })
+    );
+
+    stopTimer();
+    return memoriesWithMedia;
+  },
+  () => CacheKeys.memories(),
+  2 * 60 * 1000 // 2 minutes cache
+);
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('GET /api/memories called');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('GET /api/memories called');
+    }
     
     const session = await verifySession();
-    console.log('Session verified:', !!session?.isLoggedIn);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Session verified:', !!session?.isLoggedIn);
+    }
     
     if (!session?.isLoggedIn) {
-      console.log('Unauthorized request');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Unauthorized request');
+      }
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    console.log('Supabase URL:', process.env.SUPABASE_URL);
-    console.log('Supabase Key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
     // Test Supabase connection first
     const { data: testData, error: testError } = await supabase
@@ -24,14 +76,18 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (testError) {
-      console.error('Supabase test error:', testError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Supabase test error:', testError);
+      }
       return NextResponse.json({ 
         error: 'Database connection failed', 
-        details: testError.message 
+        details: process.env.NODE_ENV === 'development' ? testError.message : 'Internal server error'
       }, { status: 500 });
     }
 
-    console.log('Supabase connection test successful');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Supabase connection test successful');
+    }
 
     // First, let's check the media table structure
     const { data: mediaTest, error: mediaTestError } = await supabase
@@ -40,18 +96,22 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (mediaTestError) {
-      console.error('Media table test error:', mediaTestError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Media table test error:', mediaTestError);
+      }
       return NextResponse.json({ 
         error: 'Media table access failed', 
-        details: mediaTestError.message 
+        details: process.env.NODE_ENV === 'development' ? mediaTestError.message : 'Internal server error'
       }, { status: 500 });
     }
 
-    console.log('Media table structure test successful, sample data:', mediaTest);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Media table structure test successful, sample data:', mediaTest);
 
-    // Also log the actual media data structure
-    if (mediaTest && mediaTest.length > 0) {
-      console.log('Sample media record:', JSON.stringify(mediaTest[0], null, 2));
+      // Also log the actual media data structure
+      if (mediaTest && mediaTest.length > 0) {
+        console.log('Sample media record:', JSON.stringify(mediaTest[0], null, 2));
+      }
     }
 
     // Fetch memories without media first to avoid join issues
@@ -61,14 +121,18 @@ export async function GET(request: NextRequest) {
       .order('taken_at', { ascending: false });
 
     if (memoriesError) {
-      console.error('Error fetching memories:', memoriesError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching memories:', memoriesError);
+      }
       return NextResponse.json({ 
         error: 'Failed to fetch memories', 
-        details: memoriesError.message 
+        details: process.env.NODE_ENV === 'development' ? memoriesError.message : 'Internal server error'
       }, { status: 500 });
     }
 
-    console.log('Memories fetched successfully:', memories?.length || 0);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Memories fetched successfully:', memories?.length || 0);
+    }
 
     // Fetch media files separately for each memory
     const memoriesWithMedia = await Promise.all(
@@ -79,7 +143,9 @@ export async function GET(request: NextRequest) {
           .eq('memory_id', memory.id);
 
         if (mediaError) {
-          console.error(`Error fetching media for memory ${memory.id}:`, mediaError);
+          if (process.env.NODE_ENV === 'development') {
+            console.error(`Error fetching media for memory ${memory.id}:`, mediaError);
+          }
           return {
             ...memory,
             media: []
@@ -87,7 +153,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Log the raw media data to debug the structure
-        if (mediaFiles && mediaFiles.length > 0) {
+        if (mediaFiles && mediaFiles.length > 0 && process.env.NODE_ENV === 'development') {
           console.log(`Media files for memory ${memory.id}:`, JSON.stringify(mediaFiles[0], null, 2));
         }
 
@@ -98,10 +164,12 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    console.log('Memories with media processed:', memoriesWithMedia.length);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Memories with media processed:', memoriesWithMedia.length);
+    }
     
     // Log a sample memory with media to debug the structure
-    if (memoriesWithMedia.length > 0) {
+    if (memoriesWithMedia.length > 0 && process.env.NODE_ENV === 'development') {
       const sampleMemory = memoriesWithMedia[0];
       console.log('Sample memory with media:', {
         id: sampleMemory.id,

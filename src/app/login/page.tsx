@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, Sparkles, Lock, User } from 'lucide-react';
+import { Heart, Sparkles, Lock, User, Eye, EyeOff } from 'lucide-react';
 
 // Set page title
 if (typeof document !== 'undefined') {
@@ -99,6 +99,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const [randomQuote, setRandomQuote] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
   const quotes = [
@@ -170,7 +172,7 @@ export default function LoginPage() {
         router.push('/');
         router.refresh();
       } else {
-        setError(data.error || 'Login failed');
+        setError('Hey Uzak Dur!');
       }
     } catch {
       setError('Network error. Please try again.');
@@ -190,17 +192,23 @@ export default function LoginPage() {
       
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <div className={`transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-          <Card className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl bg-white/80 backdrop-blur-xl border-0 shadow-2xl shadow-green-500/20">
+        <div className={`transform transition-all duration-1000 w-full max-w-4xl ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} ${isLoading ? 'scale-105' : 'scale-100'}`}>
+          <Card className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl bg-white/80 backdrop-blur-xl border-0 shadow-2xl shadow-green-500/20">
             <CardHeader className="text-center pb-8">
               {/* Animated Logo */}
               <div className="flex justify-center mb-6">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full blur-lg opacity-60 animate-pulse" />
+                  <div className={`absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full blur-lg opacity-60 ${isLoading ? 'animate-ping' : 'animate-pulse'}`} />
                   <div className="relative bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-full">
-                    <Heart className="h-12 w-12 text-white animate-bounce" />
+                    <Heart className={`h-12 w-12 text-white ${isLoading ? 'animate-pulse' : 'animate-bounce'}`} />
                   </div>
-                  <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-spin" />
+                  <Sparkles className={`absolute -top-2 -right-2 h-6 w-6 text-yellow-400 ${isLoading ? 'animate-bounce' : 'animate-spin'}`} />
+                  {isLoading && (
+                    <>
+                      <Heart className="absolute -top-1 -left-1 h-4 w-4 text-pink-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+                      <Heart className="absolute -bottom-1 -right-1 h-3 w-3 text-red-400 animate-bounce" style={{ animationDelay: '1s' }} />
+                    </>
+                  )}
                 </div>
               </div>
               
@@ -236,16 +244,45 @@ export default function LoginPage() {
                     <Lock className="h-4 w-4 text-green-500" />
                     Şifre
                   </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-12 bg-white/70 backdrop-blur-sm border-green-200 focus:border-green-400 focus:ring-green-400/20 transition-all duration-300 hover:bg-white/80 pr-12"
+                      placeholder="Şifrenizi girin"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-green-600 transition-colors duration-200"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Beni Hatırla Checkbox */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="remember-me"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 text-green-500 focus:ring-green-400 focus:ring-2 border-green-400 rounded transition-all duration-200 accent-green-500"
                     disabled={isLoading}
-                    className="h-12 bg-white/70 backdrop-blur-sm border-green-200 focus:border-green-400 focus:ring-green-400/20 transition-all duration-300 hover:bg-white/80"
-                    placeholder="Şifrenizi girin"
                   />
+                  <Label htmlFor="remember-me" className="text-sm text-green-700 font-medium cursor-pointer select-none hover:text-green-800 transition-colors duration-200">
+                    Beni Hatırla
+                  </Label>
                 </div>
                 
                 {error && (
@@ -260,9 +297,12 @@ export default function LoginPage() {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Giriş yapılıyor...
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <Heart className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-3 w-3 text-white animate-pulse" />
+                      </div>
+                      <span className="animate-pulse">Aşkın büyüsü hazırlanıyor...</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">

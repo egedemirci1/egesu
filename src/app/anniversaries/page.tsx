@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calendar, Plus, Heart } from 'lucide-react';
+import { Calendar, Plus, Heart, Loader2 } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 
 // Set page title
@@ -188,20 +188,23 @@ export default function AnniversariesPage() {
         </div>
 
         {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} className={`bg-white/60 backdrop-blur-sm ${
-                theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
-              }`}>
-                <CardHeader>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-3 bg-gray-200 rounded animate-pulse w-1/3"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="text-center py-12">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="relative">
+                <Calendar className={`h-12 w-12 ${
+                  theme === 'green-theme' ? 'text-green-500' : 'text-pink-500'
+                } animate-pulse`} />
+                <Loader2 className={`absolute -top-1 -right-1 h-6 w-6 ${
+                  theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+                } animate-spin`} />
+              </div>
+              <div className="space-y-2">
+                <p className={`font-medium ${
+                  theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+                }`}>Yıldönümleri yükleniyor...</p>
+                <p className="text-gray-500 text-sm">Özel günler hesaplanıyor ✨</p>
+              </div>
+            </div>
           </div>
         ) : anniversaries.length > 0 ? (
           <div className="space-y-6">

@@ -4,26 +4,36 @@ import { verifySession } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Upload API called');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Upload API called');
+    }
     
     // Check authentication
     const session = await verifySession();
     if (!session) {
-      console.log('Authentication failed');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Authentication failed');
+      }
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    console.log('Authentication successful');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Authentication successful');
+    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const memoryId = formData.get('memoryId') as string;
 
-    console.log('File received:', file?.name, file?.size, file?.type);
-    console.log('Memory ID:', memoryId);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('File received:', file?.name, file?.size, file?.type);
+      console.log('Memory ID:', memoryId);
+    }
 
     if (!file) {
-      console.log('No file provided');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('No file provided');
+      }
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
@@ -46,7 +56,9 @@ export async function POST(request: NextRequest) {
     const fileName = `${timestamp}_${randomString}.${fileExtension}`;
 
     // Upload to Supabase Storage
-    console.log('Uploading to Supabase Storage:', fileName);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Uploading to Supabase Storage:', fileName);
+    }
     const { data, error } = await supabase.storage
       .from('media')
       .upload(fileName, file, {

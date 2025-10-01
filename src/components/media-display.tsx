@@ -50,20 +50,27 @@ function LazyImage({ src, alt, className }: { src: string; alt: string; classNam
   return (
     <div ref={imgRef} className={className}>
       {isInView && (
-        <img
-          src={src}
-          alt={alt}
-          className={`w-full h-full object-cover transition-transform group-hover:scale-105 transition-opacity duration-300 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={() => setIsLoaded(true)}
-          loading="lazy"
-          decoding="async"
-        />
+        <>
+          <img
+            src={src}
+            alt={alt}
+            className={`w-full h-full object-cover transition-transform group-hover:scale-105 transition-opacity duration-300 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            onLoad={() => setIsLoaded(true)}
+            loading="lazy"
+            decoding="async"
+          />
+          {!isLoaded && (
+            <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+              <div className="text-gray-400 text-sm">Yükleniyor...</div>
+            </div>
+          )}
+        </>
       )}
-      {!isLoaded && (
-        <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-          <div className="text-gray-400 text-sm">Yükleniyor...</div>
+      {!isInView && (
+        <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center">
+          <div className="text-gray-400 text-sm">Hazırlanıyor...</div>
         </div>
       )}
     </div>
@@ -150,7 +157,7 @@ export function MediaDisplay({
             <CardContent className="p-0">
               <Dialog>
                 <DialogTrigger asChild>
-                  <div className="relative aspect-square cursor-pointer group">
+                  <div className="relative aspect-square cursor-pointer group overflow-hidden">
                     {(() => {
                       // Determine if it's an image based on file_type or file extension
                       const fileName = file.original_name || file.file_name || file.public_url || '';
