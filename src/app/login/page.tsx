@@ -149,6 +149,15 @@ export default function LoginPage() {
       setRandomQuote(quotes[newRandomIndex]);
     }, 5000 + Math.random() * 1000); // 5-6 saniye arası rastgele
     
+    // "Beni hatırla" özelliği - localStorage'dan kullanıcı adını yükle
+    const savedUsername = localStorage.getItem('egesu_remembered_username');
+    const rememberMeStatus = localStorage.getItem('egesu_remember_me') === 'true';
+    
+    if (savedUsername && rememberMeStatus) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    }
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -169,6 +178,16 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        // "Beni hatırla" özelliği - localStorage'a kaydet
+        if (rememberMe) {
+          localStorage.setItem('egesu_remembered_username', username);
+          localStorage.setItem('egesu_remember_me', 'true');
+        } else {
+          // Eğer "Beni hatırla" işaretli değilse, sadece remember_me flag'ini kaldır
+          // Ama kullanıcı adını koruyoruz (kullanıcı manuel olarak işaretini kaldırmadığı sürece)
+          localStorage.removeItem('egesu_remember_me');
+        }
+        
         router.push('/');
         router.refresh();
       } else {
