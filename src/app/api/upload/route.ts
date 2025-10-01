@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySession } from '@/lib/auth';
+import { optimizeImage, getOptimalFormat, getOptimalQuality } from '@/lib/image-optimizer';
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,19 +50,69 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File too large' }, { status: 400 });
     }
 
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    let finalBuffer = buffer;
+    let optimizedFileName = file.name;
+    let finalFileSize = file.size;
+    let optimizationStats = null;
+    
+    // Optimize image if it's an image file
+    if (file.type.startsWith('image/')) {
+      try {
+        const optimalFormat = getOptimalFormat(file.type);
+        const optimalQuality = getOptimalQuality(file.size);
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Optimizing image:', file.name, 'Format:', optimalFormat, 'Quality:', optimalQuality);
+        }
+        
+        const { optimizedBuffer, stats } = await optimizeImage(buffer, {
+          quality: optimalQuality,
+          maxWidth: 1920,
+          maxHeight: 1080,
+          format: optimalFormat
+        });
+        
+        finalBuffer = Buffer.from(optimizedBuffer);
+        finalFileSize = optimizedBuffer.length;
+        optimizationStats = stats;
+        
+        // Update filename with optimized extension
+        const baseName = file.name.split('.')[0];
+        optimizedFileName = `${baseName}.${optimalFormat}`;
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Image optimization complete:', {
+            originalSize: stats.originalSize,
+            optimizedSize: stats.optimizedSize,
+            savings: `${stats.savingsPercentage}%`,
+            format: stats.format
+          });
+        }
+      } catch (optimizationError) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Image optimization failed:', optimizationError);
+        }
+        // Continue with original file if optimization fails
+      }
+    }
+
     // Generate unique filename
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = file.name.split('.').pop();
+    const fileExtension = optimizedFileName.split('.').pop();
     const fileName = `${timestamp}_${randomString}.${fileExtension}`;
 
     // Upload to Supabase Storage
     if (process.env.NODE_ENV === 'development') {
-      console.log('Uploading to Supabase Storage:', fileName);
+      console.log('Uploading to Supabase Storage:', fileName, 'Size:', finalFileSize);
     }
     const { data, error } = await supabase.storage
       .from('media')
-      .upload(fileName, file, {
+      .upload(fileName, finalBuffer, {
         cacheControl: '3600',
         upsert: false
       });
@@ -86,7 +137,7 @@ export async function POST(request: NextRequest) {
         file_name: fileName,
         original_name: file.name,
         file_type: file.type,
-        file_size: file.size,
+        file_size: finalFileSize, // Use optimized size
         storage_path: data.path,
         public_url: urlData.publicUrl
       })
@@ -101,7 +152,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       media: mediaData,
-      url: urlData.publicUrl
+      url: urlData.publicUrl,
+      optimization: optimizationStats ? {
+        wasOptimized: true,
+        originalSize: optimizationStats.originalSize,
+        optimizedSize: optimizationStats.optimizedSize,
+        savingsPercentage: optimizationStats.savingsPercentage,
+        format: optimizationStats.format
+      } : { wasOptimized: false }
     });
 
   } catch (error) {
