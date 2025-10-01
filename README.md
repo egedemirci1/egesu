@@ -113,7 +113,6 @@ egesu-memories/
 │   ├── app/
 │   │   ├── api/           # API routes
 │   │   ├── cities/        # Şehirler sayfası
-│   │   ├── albums/        # Albümler sayfası
 │   │   ├── letters/       # Mektuplar sayfası
 │   │   ├── anniversaries/ # Yıldönümleri sayfası
 │   │   ├── settings/      # Ayarlar sayfası
