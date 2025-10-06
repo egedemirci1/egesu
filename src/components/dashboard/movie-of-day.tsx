@@ -139,7 +139,8 @@ export function MovieOfDay() {
                   alt={movie.Title}
                   width={80}
                   height={112}
-                  className="object-cover"
+                  className="object-cover w-full h-full"
+                  style={{ width: 'auto', height: 'auto' }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling.style.display = 'flex';
