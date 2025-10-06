@@ -194,6 +194,14 @@ export default function LoginPage() {
         // Kalp sayacını artır
         incrementLoginCount();
         
+        // Session oluştur
+        const { createSession } = await import('@/lib/auth');
+        const token = await createSession(username);
+        
+        // Session'ı localStorage ve cookie'ye kaydet
+        localStorage.setItem('egesu_session_token', token);
+        document.cookie = `egesu_session_token=${token}; path=/; max-age=${8 * 60 * 60}; secure; samesite=lax`;
+        
         // "Beni hatırla" özelliği - localStorage'a kaydet
         if (rememberMe) {
           localStorage.setItem('egesu_remembered_username', username);
