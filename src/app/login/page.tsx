@@ -317,7 +317,7 @@ export default function LoginPage() {
               <CardTitle className={`text-3xl font-bold bg-gradient-to-r ${themeStyles.buttonGradient} bg-clip-text text-transparent mb-2`}>
                 Aşkın Sihirli Dünyası
               </CardTitle>
-              <CardDescription className="text-gray-600 text-lg italic text-center px-4 transition-all duration-1000 ease-in-out">
+              <CardDescription className="text-gray-600 text-lg italic text-center px-4 transition-all duration-1000 ease-in-out h-16 flex items-center justify-center">
                 <TypingEffect text={randomQuote} className="text-gray-600 text-lg italic" speed={30} />
               </CardDescription>
             </CardHeader>
