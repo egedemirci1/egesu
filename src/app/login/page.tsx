@@ -230,7 +230,8 @@ export default function LoginPage() {
           cardBorder: 'border-pink-200',
           inputBorder: 'border-pink-200 focus:border-pink-400 focus:ring-pink-400/20',
           buttonGradient: 'from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600',
-          buttonShadow: 'shadow-pink-500/25 hover:shadow-pink-500/40'
+          buttonShadow: 'shadow-pink-500/25 hover:shadow-pink-500/40',
+          accent: 'text-pink-500'
         };
       case 'purple':
         return {
@@ -239,7 +240,8 @@ export default function LoginPage() {
           cardBorder: 'border-purple-200',
           inputBorder: 'border-purple-200 focus:border-purple-400 focus:ring-purple-400/20',
           buttonGradient: 'from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600',
-          buttonShadow: 'shadow-purple-500/25 hover:shadow-purple-500/40'
+          buttonShadow: 'shadow-purple-500/25 hover:shadow-purple-500/40',
+          accent: 'text-purple-500'
         };
       case 'blue':
         return {
@@ -248,7 +250,8 @@ export default function LoginPage() {
           cardBorder: 'border-blue-200',
           inputBorder: 'border-blue-200 focus:border-blue-400 focus:ring-blue-400/20',
           buttonGradient: 'from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600',
-          buttonShadow: 'shadow-blue-500/25 hover:shadow-blue-500/40'
+          buttonShadow: 'shadow-blue-500/25 hover:shadow-blue-500/40',
+          accent: 'text-blue-500'
         };
       default:
         return {
@@ -257,7 +260,8 @@ export default function LoginPage() {
           cardBorder: 'border-green-200',
           inputBorder: 'border-green-200 focus:border-green-400 focus:ring-green-400/20',
           buttonGradient: 'from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600',
-          buttonShadow: 'shadow-green-500/25 hover:shadow-green-500/40'
+          buttonShadow: 'shadow-green-500/25 hover:shadow-green-500/40',
+          accent: 'text-green-500'
         };
     }
   };
