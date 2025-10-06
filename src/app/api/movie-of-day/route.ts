@@ -2,110 +2,91 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    // Mock film verileri - API key olmadığında kullanılacak
-    const mockMovies = [
-      {
-        Title: "The Shawshank Redemption",
-        Year: "1994",
-        Rated: "R",
-        Released: "14 Oct 1994",
-        Runtime: "142 min",
-        Genre: "Drama",
-        Director: "Frank Darabont",
-        Writer: "Stephen King, Frank Darabont",
-        Actors: "Tim Robbins, Morgan Freeman, Bob Gunton",
-        Plot: "Over the course of several years, two convicts form a friendship, seeking consolation and, eventually, redemption through basic compassion.",
-        Language: "English",
-        Country: "United States",
-        Awards: "Nominated for 7 Oscars. 21 wins & 44 nominations total",
-        Poster: "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwMjU5MDQ@._V1_SX300.jpg",
-        Ratings: [
-          { Source: "Internet Movie Database", Value: "9.3/10" },
-          { Source: "Rotten Tomatoes", Value: "91%" },
-          { Source: "Metacritic", Value: "80/100" }
-        ],
-        Metascore: "80",
-        imdbRating: "9.3",
-        imdbVotes: "2,847,123",
-        imdbID: "tt0111161",
-        Type: "movie",
-        DVD: "27 Jan 1998",
-        BoxOffice: "$28,767,189",
-        Production: "N/A",
-        Website: "N/A",
-        Response: "True"
-      },
-      {
-        Title: "The Godfather",
-        Year: "1972",
-        Rated: "R",
-        Released: "24 Mar 1972",
-        Runtime: "175 min",
-        Genre: "Crime, Drama",
-        Director: "Francis Ford Coppola",
-        Writer: "Mario Puzo, Francis Ford Coppola",
-        Actors: "Marlon Brando, Al Pacino, James Caan",
-        Plot: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
-        Language: "English, Italian, Latin",
-        Country: "United States",
-        Awards: "Won 3 Oscars. 31 wins & 30 nominations total",
-        Poster: "https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYjZlODYkZTk3YjEwXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg",
-        Ratings: [
-          { Source: "Internet Movie Database", Value: "9.2/10" },
-          { Source: "Rotten Tomatoes", Value: "97%" },
-          { Source: "Metacritic", Value: "100/100" }
-        ],
-        Metascore: "100",
-        imdbRating: "9.2",
-        imdbVotes: "1,912,456",
-        imdbID: "tt0068646",
-        Type: "movie",
-        DVD: "11 Sep 2001",
-        BoxOffice: "$134,966,411",
-        Production: "N/A",
-        Website: "N/A",
-        Response: "True"
-      },
-      {
-        Title: "The Dark Knight",
-        Year: "2008",
-        Rated: "PG-13",
-        Released: "18 Jul 2008",
-        Runtime: "152 min",
-        Genre: "Action, Crime, Drama",
-        Director: "Christopher Nolan",
-        Writer: "Jonathan Nolan, Christopher Nolan, David S. Goyer",
-        Actors: "Christian Bale, Heath Ledger, Aaron Eckhart",
-        Plot: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
-        Language: "English, Mandarin",
-        Country: "United States, United Kingdom",
-        Awards: "Won 2 Oscars. 163 wins & 163 nominations total",
-        Poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg",
-        Ratings: [
-          { Source: "Internet Movie Database", Value: "9.0/10" },
-          { Source: "Rotten Tomatoes", Value: "94%" },
-          { Source: "Metacritic", Value: "84/100" }
-        ],
-        Metascore: "84",
-        imdbRating: "9.0",
-        imdbVotes: "2,847,123",
-        imdbID: "tt0468569",
-        Type: "movie",
-        DVD: "09 Dec 2008",
-        BoxOffice: "$534,987,076",
-        Production: "N/A",
-        Website: "N/A",
-        Response: "True"
-      }
+    // OMDb API key - gerçek API key
+    const apiKey = process.env.OMDB_API_KEY || '5ac3143e';
+    
+    // Popüler filmlerin IMDb ID'leri
+    const popularMovies = [
+      'tt0111161', // The Shawshank Redemption
+      'tt0068646', // The Godfather
+      'tt0071562', // The Godfather Part II
+      'tt0468569', // The Dark Knight
+      'tt0050083', // 12 Angry Men
+      'tt0108052', // Schindler's List
+      'tt0167260', // The Lord of the Rings: The Return of the King
+      'tt0110912', // Pulp Fiction
+      'tt0120737', // The Lord of the Rings: The Fellowship of the Ring
+      'tt0060196', // The Good, the Bad and the Ugly
+      'tt0109830', // Forrest Gump
+      'tt0137523', // Fight Club
+      'tt0167261', // The Lord of the Rings: The Two Towers
+      'tt0080684', // Star Wars: Episode V - The Empire Strikes Back
+      'tt0073486', // One Flew Over the Cuckoo's Nest
+      'tt0099685', // Goodfellas
+      'tt0047478', // Seven Samurai
+      'tt0114369', // Se7en
+      'tt0102926', // The Silence of the Lambs
+      'tt0038650', // It's a Wonderful Life
+      'tt0076759', // Star Wars: Episode IV - A New Hope
+      'tt0047396', // Rear Window
+      'tt0103064', // Terminator 2: Judgment Day
+      'tt0054215', // Psycho
+      'tt0088763', // Back to the Future
+      'tt0118799', // Life Is Beautiful
+      'tt0078748', // Alien
+      'tt0120586', // American History X
+      'tt0105236', // Reservoir Dogs
+      'tt0021749', // City Lights
+      'tt0034583', // Casablanca
+      'tt0043014', // Sunset Boulevard
+      'tt0078788', // Apocalypse Now
+      'tt0057012', // Dr. Strangelove
+      'tt0110413', // Léon: The Professional
+      'tt0042192', // All About Eve
+      'tt0040897', // The Treasure of the Sierra Madre
+      'tt0042876', // Raging Bull
+      'tt0045152', // Singin' in the Rain
+      'tt0033467', // Citizen Kane
+      'tt0040522', // Bicycle Thieves
+      'tt0044741', // Ikiru
+      'tt3896198', // Guardians of the Galaxy Vol. 2
+      'tt4154796', // Avengers: Endgame
+      'tt4154756', // Avengers: Infinity War
+      'tt1825683', // Black Panther
+      'tt3501632', // Thor: Ragnarok
+      'tt2250912', // Spider-Man: Homecoming
+      'tt4154664', // Captain Marvel
+      'tt6320628', // Spider-Man: Far From Home
+      'tt10872600', // Spider-Man: No Way Home
+      'tt9032400', // Eternals
+      'tt9419884', // Doctor Strange in the Multiverse of Madness
+      'tt10648342', // Thor: Love and Thunder
+      'tt10298810', // Ant-Man and the Wasp: Quantumania
+      'tt6791350', // Guardians of the Galaxy Vol. 3
     ];
 
     // Günün tarihine göre deterministik rastgele seçim
     const today = new Date();
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-    const movieIndex = dayOfYear % mockMovies.length;
-    const selectedMovie = mockMovies[movieIndex];
+    const movieIndex = dayOfYear % popularMovies.length;
+    const selectedMovieId = popularMovies[movieIndex];
 
-    return NextResponse.json(selectedMovie);
+    // OMDb API'den film bilgilerini al
+    const omdbResponse = await fetch(
+      `https://www.omdbapi.com/?i=${selectedMovieId}&apikey=${apiKey}&plot=full`
+    );
+
+    if (!omdbResponse.ok) {
+      throw new Error('OMDb API error');
+    }
+
+    const movieData = await omdbResponse.json();
+
+    if (movieData.Response === 'False') {
+      throw new Error(movieData.Error || 'Film bulunamadı');
+    }
+
+    return NextResponse.json(movieData);
   } catch (error) {
     console.error('Movie of day API error:', error);
     return NextResponse.json(
