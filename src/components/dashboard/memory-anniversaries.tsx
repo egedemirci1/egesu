@@ -36,17 +36,19 @@ interface MemoryAnniversariesProps {
 
 export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps) {
   const { theme } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchMemories();
-    } else {
-      setIsLoading(false);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchMemories();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   const fetchMemories = async () => {
     try {

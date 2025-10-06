@@ -24,18 +24,20 @@ interface SongOfDayProps {
 
 export function SongOfDay({ className = '' }: SongOfDayProps) {
   const { theme } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const [songOfDay, setSongOfDay] = useState<Song | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchSongs();
-    } else {
-      setIsLoading(false);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchSongs();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   const fetchSongs = async () => {
     try {

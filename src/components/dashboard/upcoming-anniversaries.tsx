@@ -21,17 +21,19 @@ interface UpcomingAnniversariesProps {
 
 export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesProps) {
   const { theme } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [anniversaries, setAnniversaries] = useState<Anniversary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchAnniversaries();
-    } else {
-      setIsLoading(false);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchAnniversaries();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   const fetchAnniversaries = async () => {
     try {

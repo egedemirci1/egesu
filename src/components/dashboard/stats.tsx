@@ -22,7 +22,7 @@ interface StatsData {
 
 export function Stats({ className = '' }: StatsProps) {
   const { theme } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [stats, setStats] = useState<StatsData>({
     totalMemories: 0,
     totalLetters: 0,
@@ -34,12 +34,14 @@ export function Stats({ className = '' }: StatsProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchStats();
-    } else {
-      setIsLoading(false);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchStats();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   const fetchStats = async () => {
     try {
