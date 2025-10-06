@@ -5,7 +5,7 @@ import { verifySessionServer } from '@/lib/auth-server';
 export const dynamic = 'force-static';
 import { checkContentRateLimit, recordContentCreation, getClientIP, sanitizeContent, detectSpamPatterns } from '@/lib/spam-protection';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await verifySessionServer(request);
     
