@@ -7,8 +7,14 @@ const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_APP_SESSION_SECR
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow login page and API routes
-  if (pathname === '/login' || pathname.startsWith('/api/')) {
+  // Skip middleware for API routes, static files, and login page
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/public/') ||
+    pathname === '/login'
+  ) {
     const response = NextResponse.next();
     return securityHeaders(response);
   }
@@ -47,8 +53,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public (public files)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
