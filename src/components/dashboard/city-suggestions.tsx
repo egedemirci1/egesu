@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Plane, Compass, Star } from 'lucide-react';
+import { MapPin, Plane, Compass, Star, Lock } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { CITIES } from '@/constants/cities';
 import { Carousel } from '@/components/ui/carousel';
+import { useAuth } from '@/lib/auth';
 
 interface Memory {
   id: string;
@@ -25,12 +26,17 @@ interface CitySuggestionsProps {
 
 export function CitySuggestions({ className = '' }: CitySuggestionsProps) {
   const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchMemories();
-  }, []);
+    if (isAuthenticated) {
+      fetchMemories();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const fetchMemories = async () => {
     try {
@@ -118,6 +124,30 @@ export function CitySuggestions({ className = '' }: CitySuggestionsProps) {
   };
 
   const citySuggestions = getCitySuggestions();
+
+  if (!isAuthenticated) {
+    return (
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <MapPin className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Şehir Önerileri</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 text-sm">Giriş yapın</p>
+            <p className="text-gray-400 text-xs mt-1">Şehir önerilerini görmek için</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
