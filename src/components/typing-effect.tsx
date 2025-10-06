@@ -25,28 +25,35 @@ export function TypingEffect({ text, speed = 50, className = '' }: TypingEffectP
     setCurrentIndex(0);
     setIsDeleting(false);
 
+    let index = 0;
+    let deleting = false;
+
     const typeText = () => {
-      if (!isDeleting) {
+      if (!deleting) {
         // Yazma modu
-        if (currentIndex < text.length) {
-          setDisplayedText(text.slice(0, currentIndex + 1));
-          setCurrentIndex(prev => prev + 1);
+        if (index < text.length) {
+          setDisplayedText(text.slice(0, index + 1));
+          index++;
+          setCurrentIndex(index);
           timeoutRef.current = setTimeout(typeText, speed);
         } else {
           // Metin tamamlandı, 2 saniye bekle sonra silmeye başla
           pauseTimeoutRef.current = setTimeout(() => {
+            deleting = true;
             setIsDeleting(true);
             timeoutRef.current = setTimeout(typeText, speed / 2);
           }, 2000);
         }
       } else {
         // Silme modu
-        if (currentIndex > 0) {
-          setDisplayedText(text.slice(0, currentIndex - 1));
-          setCurrentIndex(prev => prev - 1);
+        if (index > 0) {
+          setDisplayedText(text.slice(0, index - 1));
+          index--;
+          setCurrentIndex(index);
           timeoutRef.current = setTimeout(typeText, speed / 2);
         } else {
           // Metin silindi, yeni metin için hazırlan
+          deleting = false;
           setIsDeleting(false);
           timeoutRef.current = setTimeout(typeText, speed);
         }
@@ -60,7 +67,7 @@ export function TypingEffect({ text, speed = 50, className = '' }: TypingEffectP
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
     };
-  }, [text, speed, currentIndex, isDeleting]);
+  }, [text, speed]);
 
   return (
     <span className={className}>
