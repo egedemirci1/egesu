@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Star, Calendar, Clock } from 'lucide-react';
+import { Play, Star, Calendar, Clock, Film } from 'lucide-react';
+import Image from 'next/image';
 
 interface Movie {
   Title: string;
@@ -131,11 +132,24 @@ export function MovieOfDay() {
         <div className="space-y-4">
           {/* Film Posteri ve Temel Bilgiler */}
           <div className="flex gap-4">
-            <img
-              src={movie.Poster !== 'N/A' ? movie.Poster : '/placeholder-movie.jpg'}
-              alt={movie.Title}
-              className="w-20 h-28 object-cover rounded-lg shadow-md"
-            />
+            <div className="w-20 h-28 rounded-lg shadow-md overflow-hidden bg-gray-200 flex items-center justify-center">
+              {movie.Poster && movie.Poster !== 'N/A' ? (
+                <Image
+                  src={movie.Poster}
+                  alt={movie.Title}
+                  width={80}
+                  height={112}
+                  className="object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className="w-full h-full flex items-center justify-center text-gray-500" style={{ display: movie.Poster && movie.Poster !== 'N/A' ? 'none' : 'flex' }}>
+                <Film className="h-8 w-8" />
+              </div>
+            </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-lg leading-tight mb-1">{movie.Title}</h3>
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
