@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logout } from '@/lib/auth';
 
-export const dynamic = 'force-static';
-
 export async function POST(request: NextRequest) {
   try {
     await logout();

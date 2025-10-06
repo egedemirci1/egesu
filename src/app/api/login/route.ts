@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
-export const dynamic = 'force-static';
-
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();

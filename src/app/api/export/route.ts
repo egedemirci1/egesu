@@ -3,8 +3,6 @@ import { supabase } from '@/lib/supabase';
 import { verifySessionServer } from '@/lib/auth-server';
 import JSZip from 'jszip';
 
-export const dynamic = 'force-static';
-
 export async function GET(request: NextRequest) {
   try {
     const session = await verifySessionServer(request);

@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySessionServer } from '@/lib/auth-server';
 
-export const dynamic = 'force-static';
-
 export async function GET(request: NextRequest) {
   try {
     // Check authentication first

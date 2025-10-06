@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySessionServer } from '@/lib/auth-server';
 
-export const dynamic = 'force-static';
 import { checkContentRateLimit, recordContentCreation, getClientIP, sanitizeContent, detectSpamPatterns } from '@/lib/spam-protection';
 
 export async function GET(request: NextRequest) {

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySessionServer } from '@/lib/auth-server';
-
-export const dynamic = 'force-static';
 import { optimizeImage, getOptimalFormat, getOptimalQuality } from '@/lib/image-optimizer';
 
 export async function POST(request: NextRequest) {
