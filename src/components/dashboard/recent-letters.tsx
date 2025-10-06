@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Mail, Clock, Plus, Eye } from 'lucide-react';
+import { Mail, Clock, Plus, Eye, Lock } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { useAuth } from '@/lib/auth';
 
 interface Letter {
   id: string;
@@ -20,12 +21,17 @@ interface RecentLettersProps {
 
 export function RecentLetters({ className = '' }: RecentLettersProps) {
   const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [letters, setLetters] = useState<Letter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchLetters();
-  }, []);
+    if (isAuthenticated) {
+      fetchLetters();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const fetchLetters = async () => {
     try {
@@ -68,6 +74,33 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
   };
 
   const recentLetters = getRecentLetters();
+
+  if (!isAuthenticated) {
+    return (
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Lock className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Yeni Mektuplar</span>
+          </CardTitle>
+          <CardDescription>
+            Son yazılan mektuplar
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col">
+          <div className="text-center py-6 flex-1 flex flex-col justify-center">
+            <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 text-sm">Giriş yapın</p>
+            <p className="text-gray-400 text-xs mt-1">Mektupları görüntülemek için giriş yapın</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
