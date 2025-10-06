@@ -4,6 +4,8 @@ import { verifySession } from '@/lib/auth';
 import { PerformanceMonitor } from '@/lib/performance';
 import { cache, CacheKeys, cached } from '@/lib/cache';
 
+export const dynamic = 'force-static';
+
 // Cached function for fetching memories
 const fetchMemoriesCached = cached(
   async () => {
