@@ -12,6 +12,7 @@ import { MemoryAnniversaries } from '@/components/dashboard/memory-anniversaries
 import { CitySuggestions } from '@/components/dashboard/city-suggestions';
 import { Stats } from '@/components/dashboard/stats';
 import { SongOfDay } from '@/components/dashboard/song-of-day';
+import { MovieOfDay } from '@/components/dashboard/movie-of-day';
 
 // Set page title
 if (typeof document !== 'undefined') {
@@ -73,6 +74,9 @@ export default function HomePage() {
           <div className="flex flex-col space-y-6">
             <div className="flex-1 min-h-0">
               <SongOfDay />
+            </div>
+            <div className="flex-1 min-h-0">
+              <MovieOfDay />
             </div>
             <div className="flex-1 min-h-0">
               <Stats />
