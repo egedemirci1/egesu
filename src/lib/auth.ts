@@ -71,9 +71,12 @@ export async function login(username: string, password: string): Promise<boolean
     // Create session token
     const token = await createSession(username);
     
-    // Store in localStorage
+    // Store in localStorage and cookie
     if (typeof window !== 'undefined') {
       localStorage.setItem('egesu_session_token', token);
+      
+      // Set cookie for middleware
+      document.cookie = `egesu_session_token=${token}; path=/; max-age=${8 * 60 * 60}; secure; samesite=lax`;
     }
 
     return true;
@@ -86,6 +89,9 @@ export async function login(username: string, password: string): Promise<boolean
 export async function logout(): Promise<void> {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('egesu_session_token');
+    
+    // Clear cookie for middleware
+    document.cookie = 'egesu_session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   }
 }
 
