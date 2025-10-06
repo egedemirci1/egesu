@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Eye, RefreshCw } from 'lucide-react';
+import { Music, Play, Eye, RefreshCw, Lock } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { useAuth } from '@/lib/auth';
 
 interface Song {
   id: string;
@@ -23,13 +24,18 @@ interface SongOfDayProps {
 
 export function SongOfDay({ className = '' }: SongOfDayProps) {
   const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const [songOfDay, setSongOfDay] = useState<Song | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchSongs();
-  }, []);
+    if (isAuthenticated) {
+      fetchSongs();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const fetchSongs = async () => {
     try {
@@ -86,6 +92,30 @@ export function SongOfDay({ className = '' }: SongOfDayProps) {
     };
     return categoryMap[category] || category;
   };
+
+  if (!isAuthenticated) {
+    return (
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Music className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Günün Şarkısı</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 text-sm">Giriş yapın</p>
+            <p className="text-gray-400 text-xs mt-1">Şarkı önerilerini görmek için</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Heart, MapPin, Mail, Image, Calendar } from 'lucide-react';
+import { BarChart3, Heart, MapPin, Mail, Image, Calendar, Lock } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { useAuth } from '@/lib/auth';
 
 interface StatsProps {
   className?: string;
@@ -21,6 +22,7 @@ interface StatsData {
 
 export function Stats({ className = '' }: StatsProps) {
   const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [stats, setStats] = useState<StatsData>({
     totalMemories: 0,
     totalLetters: 0,
@@ -32,8 +34,12 @@ export function Stats({ className = '' }: StatsProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (isAuthenticated) {
+      fetchStats();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const fetchStats = async () => {
     try {
@@ -77,6 +83,30 @@ export function Stats({ className = '' }: StatsProps) {
   const getProgressPercentage = (current: number, total: number) => {
     return Math.round((current / total) * 100);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <BarChart3 className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>İstatistikler</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 text-sm">Giriş yapın</p>
+            <p className="text-gray-400 text-xs mt-1">İstatistikleri görmek için</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
