@@ -170,7 +170,6 @@ export function DigitalClock({ className = '' }: DigitalClockProps) {
           {getTimeIcon()}
           <span className="text-xs sm:text-lg font-medium text-gray-700">{getGreeting()}</span>
         </div>
-        <p className="text-xs sm:text-sm text-gray-500">Aşkın büyülü dünyasına hoş geldin</p>
       </div>
 
       {/* Weather */}

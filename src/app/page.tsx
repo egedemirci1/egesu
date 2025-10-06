@@ -42,39 +42,39 @@ export default function HomePage() {
 
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-stretch">
           {/* Mobilde: Anı Yıldönümleri En Üstte */}
           <div className="lg:hidden">
             <MemoryAnniversaries />
           </div>
 
           {/* Sol Kolon */}
-          <div className="space-y-6 flex flex-col">
-            <div className="flex-1">
+          <div className="flex flex-col space-y-6">
+            <div className="flex-1 min-h-0">
               <UpcomingAnniversaries />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-h-0">
               <RecentLetters />
             </div>
           </div>
 
           {/* Orta Kolon */}
-          <div className="space-y-6 flex flex-col">
+          <div className="flex flex-col space-y-6">
             {/* Desktop'ta Anı Yıldönümleri */}
-            <div className="hidden lg:block flex-1">
+            <div className="hidden lg:block flex-1 min-h-0">
               <MemoryAnniversaries />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-h-0">
               <CitySuggestions />
             </div>
           </div>
 
           {/* Sağ Kolon */}
-          <div className="space-y-6 flex flex-col">
-            <div className="flex-1">
+          <div className="flex flex-col space-y-6">
+            <div className="flex-1 min-h-0">
               <SongOfDay />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-h-0">
               <Stats />
             </div>
           </div>
