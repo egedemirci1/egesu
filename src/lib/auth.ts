@@ -1,10 +1,12 @@
-import { cookies } from 'next/headers';
+'use client';
+
+import { useState, useEffect } from 'react';
 import { SignJWT, jwtVerify } from 'jose';
 import bcrypt from 'bcryptjs';
 
-const secret = new TextEncoder().encode(process.env.APP_SESSION_SECRET!);
-const APP_USERNAME = process.env.APP_USERNAME!;
-const APP_PASSWORD_HASH = process.env.APP_PASSWORD_HASH!;
+const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_APP_SESSION_SECRET || 'fallback-secret-key');
+const APP_USERNAME = process.env.NEXT_PUBLIC_APP_USERNAME || 'admin';
+const APP_PASSWORD_HASH = process.env.NEXT_PUBLIC_APP_PASSWORD_HASH || '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'; // password
 
 export interface SessionData {
   username: string;
@@ -27,101 +29,120 @@ export async function createSession(username: string): Promise<string> {
 }
 
 export async function verifySession(): Promise<SessionData | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('session')?.value;
-
-  if (!token) {
-    return null;
+  if (typeof window === 'undefined') {
+    return null; // Server-side rendering
   }
 
   try {
+    const token = localStorage.getItem('egesu_session_token');
+    if (!token) {
+      return null;
+    }
+
     const { payload } = await jwtVerify(token, secret);
-    return {
-      username: payload.username as string,
-      isLoggedIn: payload.isLoggedIn as boolean
-    };
-  } catch {
+    
+    if (payload.isLoggedIn && payload.username) {
+      return {
+        username: payload.username as string,
+        isLoggedIn: true
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Session verification failed:', error);
+    localStorage.removeItem('egesu_session_token');
     return null;
   }
 }
 
 export async function login(username: string, password: string): Promise<boolean> {
-  // Only log in development environment
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Login attempt for user:', username);
-  }
-  
-  if (username !== APP_USERNAME) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Username mismatch');
+  try {
+    // Check credentials
+    if (username !== APP_USERNAME) {
+      return false;
     }
+
+    const isValidPassword = await bcrypt.compare(password, APP_PASSWORD_HASH);
+    if (!isValidPassword) {
+      return false;
+    }
+
+    // Create session token
+    const token = await createSession(username);
+    
+    // Store in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('egesu_session_token', token);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Login failed:', error);
     return false;
   }
-
-  const result = await bcrypt.compare(password, APP_PASSWORD_HASH);
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Password verification result:', result ? 'success' : 'failed');
-  }
-  return result;
 }
 
 export async function logout(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete('session');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('egesu_session_token');
+  }
 }
 
-// Rate limiting with improved security
-const failedAttempts = new Map<string, { count: number; lastAttempt: number; blocked: boolean }>();
-const MAX_ATTEMPTS = 3; // Reduced from 5 to 3
-const LOCKOUT_DURATION = 30 * 60 * 1000; // Increased to 30 minutes
-const MAX_DAILY_ATTEMPTS = 10; // Daily limit per IP
-const DAILY_RESET_TIME = 24 * 60 * 60 * 1000; // 24 hours
-
-export function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const attempt = failedAttempts.get(ip);
-
-  if (!attempt) {
-    return true;
-  }
-
-  // Check if IP is permanently blocked
-  if (attempt.blocked) {
-    return false;
-  }
-
-  // Check if lockout period has expired
-  if (now - attempt.lastAttempt > LOCKOUT_DURATION) {
-    failedAttempts.delete(ip);
-    return true;
-  }
-
-  // Check if daily limit exceeded
-  if (attempt.count >= MAX_DAILY_ATTEMPTS) {
-    attempt.blocked = true;
-    return false;
-  }
-
-  return attempt.count < MAX_ATTEMPTS;
+export async function hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, 10);
 }
 
-export function recordFailedAttempt(ip: string): void {
-  const now = Date.now();
-  const attempt = failedAttempts.get(ip);
+// Client-side auth hook
 
-  if (!attempt) {
-    failedAttempts.set(ip, { count: 1, lastAttempt: now, blocked: false });
-  } else {
-    attempt.count++;
-    attempt.lastAttempt = now;
-    
-    // Block IP if too many attempts
-    if (attempt.count >= MAX_DAILY_ATTEMPTS) {
-      attempt.blocked = true;
+export function useAuth() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<SessionData | null>(null);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const session = await verifySession();
+      if (session) {
+        setIsAuthenticated(true);
+        setUser(session);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-  }
-}
+  };
 
-export function clearFailedAttempts(ip: string): void {
-  failedAttempts.delete(ip);
+  const loginUser = async (username: string, password: string) => {
+    const success = await login(username, password);
+    if (success) {
+      await checkAuth();
+    }
+    return success;
+  };
+
+  const logoutUser = async () => {
+    await logout();
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
+  return {
+    isAuthenticated,
+    isLoading,
+    user,
+    login: loginUser,
+    logout: logoutUser,
+    checkAuth
+  };
 }
