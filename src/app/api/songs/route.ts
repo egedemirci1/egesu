@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { verifySession } from '@/lib/auth';
+import { verifySessionServer } from '@/lib/auth-server';
 
 export const dynamic = 'force-static';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

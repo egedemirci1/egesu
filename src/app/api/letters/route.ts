@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { verifySession } from '@/lib/auth';
+import { verifySessionServer } from '@/lib/auth-server';
 
 export const dynamic = 'force-static';
 import { checkContentRateLimit, recordContentCreation, getClientIP, sanitizeContent, detectSpamPatterns } from '@/lib/spam-protection';
 
 export async function GET() {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,7 +36,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

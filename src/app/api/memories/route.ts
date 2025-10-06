@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { verifySession } from '@/lib/auth';
+import { verifySessionServer } from '@/lib/auth-server';
 import { PerformanceMonitor } from '@/lib/performance';
 import { cache, CacheKeys, cached } from '@/lib/cache';
 
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       console.log('GET /api/memories called');
     }
     
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     if (process.env.NODE_ENV === 'development') {
       console.log('Session verified:', !!session?.isLoggedIn);
     }
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('POST /api/memories called');
     
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     console.log('Session verified:', !!session?.isLoggedIn);
     
     if (!session?.isLoggedIn) {
@@ -319,7 +319,7 @@ export async function PUT(request: NextRequest) {
   try {
     console.log('PUT /api/memories called');
     
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     console.log('Session verified:', !!session?.isLoggedIn);
     
     if (!session?.isLoggedIn) {
@@ -381,7 +381,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

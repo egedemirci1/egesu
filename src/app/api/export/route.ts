@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { verifySession } from '@/lib/auth';
+import { verifySessionServer } from '@/lib/auth-server';
 import JSZip from 'jszip';
 
 export const dynamic = 'force-static';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     
     if (!session?.isLoggedIn) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

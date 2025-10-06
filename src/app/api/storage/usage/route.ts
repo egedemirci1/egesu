@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { verifySession } from '@/lib/auth';
+import { verifySessionServer } from '@/lib/auth-server';
 
 export const dynamic = 'force-static';
 
@@ -12,7 +12,7 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     // Session kontrolü
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

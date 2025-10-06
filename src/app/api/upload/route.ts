@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { verifySession } from '@/lib/auth';
+import { verifySessionServer } from '@/lib/auth-server';
 
 export const dynamic = 'force-static';
 import { optimizeImage, getOptimalFormat, getOptimalQuality } from '@/lib/image-optimizer';
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check authentication
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     if (!session) {
       if (process.env.NODE_ENV === 'development') {
         console.log('Authentication failed');
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Check authentication
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -211,7 +211,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Check authentication
-    const session = await verifySession();
+    const session = await verifySessionServer(request);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
