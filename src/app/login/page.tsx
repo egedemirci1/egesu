@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Sparkles, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { DigitalClock } from '@/components/digital-clock';
 
 // Set page title
 if (typeof document !== 'undefined') {
@@ -209,8 +210,13 @@ export default function LoginPage() {
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-200/20 via-emerald-200/20 to-teal-200/20" />
       
+      {/* Digital Clock - Responsive Position */}
+      <div className="absolute top-4 right-4 z-20 hidden sm:block">
+        <DigitalClock className="w-64" />
+      </div>
+
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
         <div className={`transform transition-all duration-1000 w-full max-w-4xl ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} ${isLoading ? 'scale-105' : 'scale-100'}`}>
           <Card className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl bg-white/80 backdrop-blur-xl border-0 shadow-2xl shadow-green-500/20">
             <CardHeader className="text-center pb-8">
@@ -333,6 +339,11 @@ export default function LoginPage() {
               </form>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Digital Clock - Mobile Bottom */}
+        <div className="mt-6 w-full max-w-sm sm:hidden">
+          <DigitalClock className="w-full" />
         </div>
       </div>
     </div>

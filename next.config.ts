@@ -14,6 +14,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "connect-src 'self' https://*.supabase.co https://api.openweathermap.org",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

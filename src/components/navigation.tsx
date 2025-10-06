@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/lib/theme';
 
 const navigation = [
-  { name: 'Anılar', href: '/', icon: Home },
+  { name: 'Ana Sayfa', href: '/', icon: Home },
+  { name: 'Anılar', href: '/memories', icon: Heart },
   { name: 'Şehirler', href: '/cities', icon: MapPin },
   { name: 'Şarkılar', href: '/songs', icon: Music },
   { name: 'Mektuplar', href: '/letters', icon: Mail },
