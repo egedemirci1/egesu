@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface TypingEffectProps {
   text: string;
@@ -10,32 +10,57 @@ interface TypingEffectProps {
 
 export function TypingEffect({ text, speed = 50, className = '' }: TypingEffectProps) {
   const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const pauseTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Önceki timeout'ları temizle
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+
+    // Text değiştiğinde state'leri sıfırla
+    setDisplayedText('');
+    setCurrentIndex(0);
+    setIsDeleting(false);
+
+    const typeText = () => {
       if (!isDeleting) {
+        // Yazma modu
         if (currentIndex < text.length) {
           setDisplayedText(text.slice(0, currentIndex + 1));
-          setCurrentIndex(currentIndex + 1);
+          setCurrentIndex(prev => prev + 1);
+          timeoutRef.current = setTimeout(typeText, speed);
         } else {
           // Metin tamamlandı, 2 saniye bekle sonra silmeye başla
-          setTimeout(() => setIsDeleting(true), 2000);
+          pauseTimeoutRef.current = setTimeout(() => {
+            setIsDeleting(true);
+            timeoutRef.current = setTimeout(typeText, speed / 2);
+          }, 2000);
         }
       } else {
+        // Silme modu
         if (currentIndex > 0) {
           setDisplayedText(text.slice(0, currentIndex - 1));
-          setCurrentIndex(currentIndex - 1);
+          setCurrentIndex(prev => prev - 1);
+          timeoutRef.current = setTimeout(typeText, speed / 2);
         } else {
           // Metin silindi, yeni metin için hazırlan
           setIsDeleting(false);
+          timeoutRef.current = setTimeout(typeText, speed);
         }
       }
-    }, isDeleting ? speed / 2 : speed);
+    };
 
-    return () => clearTimeout(timer);
-  }, [currentIndex, isDeleting, text, speed]);
+    // İlk çalıştırma
+    timeoutRef.current = setTimeout(typeText, speed);
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    };
+  }, [text, speed, currentIndex, isDeleting]);
 
   return (
     <span className={className}>
