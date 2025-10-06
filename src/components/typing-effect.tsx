@@ -12,8 +12,8 @@ export function TypingEffect({ text, speed = 50, className = '' }: TypingEffectP
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  const pauseTimeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Önceki timeout'ları temizle
