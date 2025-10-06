@@ -21,17 +21,19 @@ interface RecentLettersProps {
 
 export function RecentLetters({ className = '' }: RecentLettersProps) {
   const { theme } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [letters, setLetters] = useState<Letter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchLetters();
-    } else {
-      setIsLoading(false);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchLetters();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   const fetchLetters = async () => {
     try {
