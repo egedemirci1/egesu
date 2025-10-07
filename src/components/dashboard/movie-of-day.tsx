@@ -214,7 +214,10 @@ export function MovieOfDay({ className = '' }: MovieOfDayProps) {
                   className="object-cover w-full h-full"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                    const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
+                    if (sibling) {
+                      sibling.style.display = 'flex';
+                    }
                   }}
                 />
               ) : null}
