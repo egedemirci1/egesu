@@ -33,11 +33,27 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
     if (!authLoading) {
       if (isAuthenticated) {
         fetchLetters();
+        checkUnlockStatus();
       } else {
         setIsLoading(false);
       }
     }
   }, [isAuthenticated, authLoading]);
+
+  const checkUnlockStatus = async () => {
+    try {
+      const response = await fetch('/api/letters/verify-password', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.unlocked) {
+        setIsUnlocked(true);
+      }
+    } catch (error) {
+      console.error('Unlock status check error:', error);
+    }
+  };
 
   // Otomatik slider
   useEffect(() => {
@@ -90,24 +106,30 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
     return text.substring(0, maxLength) + '...';
   };
 
-  const hashPassword = async (pwd: string): Promise<string> => {
-    const msgBuffer = new TextEncoder().encode(pwd);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basit string karşılaştırma kullanarak test edelim
-    if (password === 'pırt') {
-      setIsUnlocked(true);
-      setPassword('');
-    } else {
-      console.log('Girilen:', password);
-      console.log('Beklenen:', 'pırt');
-      alert('Yanlış şifre!');
+    try {
+      // Server-side şifre doğrulama
+      const response = await fetch('/api/letters/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsUnlocked(true);
+        setPassword('');
+      } else {
+        alert('Yanlış şifre!');
+        setPassword('');
+      }
+    } catch (error) {
+      console.error('Password verification error:', error);
+      alert('Bir hata oluştu. Lütfen tekrar deneyin.');
       setPassword('');
     }
   };
