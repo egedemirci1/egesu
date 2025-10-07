@@ -33,7 +33,7 @@ export default function CitiesPage() {
   const fetchMemories = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/memories');
+      const response = await fetch('/api/memories', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setMemories(data);

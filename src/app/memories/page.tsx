@@ -68,7 +68,7 @@ export default function MemoriesPage() {
     setIsLoading(true);
     try {
       console.log('Fetching memories...');
-      const response = await fetch('/api/memories');
+      const response = await fetch('/api/memories', { credentials: 'include' });
       console.log('Fetch response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -108,6 +108,7 @@ export default function MemoriesPage() {
       
       const memoryResponse = await fetch('/api/memories', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -143,6 +144,7 @@ export default function MemoriesPage() {
         const updatePromises = uploadedFiles.map(async (file) => {
           const response = await fetch('/api/upload', {
             method: 'PUT',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -221,6 +223,7 @@ export default function MemoriesPage() {
     try {
       const response = await fetch(`/api/memories?id=${memoryId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -253,6 +256,7 @@ export default function MemoriesPage() {
     try {
       const response = await fetch('/api/memories', {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

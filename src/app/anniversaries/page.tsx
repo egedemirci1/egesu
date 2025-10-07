@@ -40,7 +40,7 @@ export default function AnniversariesPage() {
 
   const fetchAnniversaries = async () => {
     try {
-      const response = await fetch('/api/anniversaries');
+      const response = await fetch('/api/anniversaries', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setAnniversaries(data);
@@ -62,6 +62,7 @@ export default function AnniversariesPage() {
     try {
       const response = await fetch('/api/anniversaries', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

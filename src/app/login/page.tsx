@@ -194,13 +194,11 @@ export default function LoginPage() {
         // Kalp sayacını artır
         incrementLoginCount();
         
-        // Session oluştur
-        const { createSession } = await import('@/lib/auth');
-        const token = await createSession(username);
-        
-        // Session'ı localStorage ve cookie'ye kaydet
-        localStorage.setItem('egesu_session_token', token);
-        document.cookie = `egesu_session_token=${token}; path=/; max-age=${8 * 60 * 60}; secure; samesite=lax`;
+        // Token is now set by the server in an HTTP-only cookie
+        // We just need to store it in localStorage for client-side checks
+        if (data.token) {
+          localStorage.setItem('egesu_session_token', data.token);
+        }
         
         // "Beni hatırla" özelliği - localStorage'a kaydet
         if (rememberMe) {

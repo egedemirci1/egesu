@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Star, Calendar, Clock, Film } from 'lucide-react';
+import { Play, Star, Calendar, Clock, Film, Eye, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
+import { useTheme } from '@/lib/theme';
+import { useAuth } from '@/lib/auth';
 
 interface Movie {
   Title: string;
@@ -37,14 +39,26 @@ interface Movie {
   Response: string;
 }
 
-export function MovieOfDay() {
+interface MovieOfDayProps {
+  className?: string;
+}
+
+export function MovieOfDay({ className = '' }: MovieOfDayProps) {
+  const { theme } = useTheme();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchMovieOfDay();
-  }, []);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchMovieOfDay();
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [isAuthenticated, authLoading]);
 
   const fetchMovieOfDay = async () => {
     try {
@@ -52,7 +66,7 @@ export function MovieOfDay() {
       setError('');
 
       // OMDb API'den günün filmi için rastgele bir film al
-      const response = await fetch('/api/movie-of-day');
+      const response = await fetch('/api/movie-of-day', { credentials: 'include' });
       const data = await response.json();
 
       if (response.ok) {
@@ -75,15 +89,42 @@ export function MovieOfDay() {
     return 'text-red-600';
   };
 
+  if (!isAuthenticated) {
+    return (
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Film className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Günün Film Önerisi</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Film className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 text-sm">Giriş yapın</p>
+            <p className="text-gray-400 text-xs mt-1">Film önerilerini görmek için</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (loading) {
     return (
-      <Card className="h-full flex flex-col">
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Play className="h-5 w-5 text-purple-600" />
-            Günün Film Önerisi
+          <CardTitle className="flex items-center space-x-2">
+            <Film className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Günün Film Önerisi</span>
           </CardTitle>
-          <CardDescription>Bugün için özel film önerisi</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -97,13 +138,16 @@ export function MovieOfDay() {
 
   if (error) {
     return (
-      <Card className="h-full flex flex-col">
+      <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+        theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+      } ${className}`}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Play className="h-5 w-5 text-purple-600" />
-            Günün Film Önerisi
+          <CardTitle className="flex items-center space-x-2">
+            <Film className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Günün Film Önerisi</span>
           </CardTitle>
-          <CardDescription>Bugün için özel film önerisi</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -120,27 +164,54 @@ export function MovieOfDay() {
   if (!movie) return null;
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
+      theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
+    } ${className}`}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Play className="h-5 w-5 text-purple-600" />
-          Günün Film Önerisi
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Film className={`h-5 w-5 ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <span>Günün Film Önerisi</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={fetchMovieOfDay}
+              className="text-xs hover:bg-gray-100"
+              title="Yeni film seç"
+            >
+              <RefreshCw className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.open(`https://www.imdb.com/title/${movie.imdbID}`, '_blank')}
+              className="text-xs"
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              IMDb'de İncele
+            </Button>
+          </div>
         </CardTitle>
-        <CardDescription>Bugün için özel film önerisi</CardDescription>
+        <CardDescription>
+          Her gün farklı bir film keşfedin
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <div className="space-y-4">
-          {/* Film Posteri ve Temel Bilgiler */}
-          <div className="flex gap-4">
-            <div className="w-20 h-28 rounded-lg shadow-md overflow-hidden bg-gray-200 flex items-center justify-center">
+      <CardContent className="flex-1 overflow-hidden">
+        <div className="space-y-3 h-full flex flex-col">
+          {/* Film Posteri - Daha küçük */}
+          <div className="relative flex-shrink-0">
+            <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
               {movie.Poster && movie.Poster !== 'N/A' ? (
                 <Image
                   src={movie.Poster}
                   alt={movie.Title}
-                  width={80}
-                  height={112}
+                  width={200}
+                  height={96}
                   className="object-cover w-full h-full"
-                  style={{ width: 'auto', height: 'auto' }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling.style.display = 'flex';
@@ -148,63 +219,53 @@ export function MovieOfDay() {
                 />
               ) : null}
               <div className="w-full h-full flex items-center justify-center text-gray-500" style={{ display: movie.Poster && movie.Poster !== 'N/A' ? 'none' : 'flex' }}>
-                <Film className="h-8 w-8" />
+                <Film className="h-5 w-5" />
               </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg leading-tight mb-1">{movie.Title}</h3>
-              <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {movie.Year}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {movie.Runtime}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Star className={`h-3 w-3 ${getRatingColor(movie.imdbRating)}`} />
-                  {movie.imdbRating}/10
+            <div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center">
+              <Button
+                onClick={() => window.open(`https://www.imdb.com/title/${movie.imdbID}`, '_blank')}
+                size="sm"
+                className={`${
+                  theme === 'green-theme' 
+                    ? 'bg-green-500 hover:bg-green-600' 
+                    : 'bg-pink-500 hover:bg-pink-600'
+                } text-white text-xs px-2 py-1`}
+              >
+                <Play className="h-3 w-3 mr-1" />
+                İncele
+              </Button>
+            </div>
+          </div>
+
+          {/* Film Bilgileri - Kompakt */}
+          <div className="space-y-2 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 className="font-medium text-gray-800 text-sm leading-tight">{movie.Title}</h4>
+              <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                <span>{movie.Year}</span>
+                <span>•</span>
+                <span>{movie.Runtime}</span>
+                <span>•</span>
+                <span className={`flex items-center gap-1 ${getRatingColor(movie.imdbRating)}`}>
+                  <Star className="h-3 w-3" />
+                  {movie.imdbRating}
                 </span>
               </div>
-              <p className="text-sm text-gray-500">{movie.Genre}</p>
             </div>
-          </div>
-
-          {/* Film Açıklaması */}
-          <div>
-            <p className="text-sm text-gray-700 line-clamp-3">{movie.Plot}</p>
-          </div>
-
-          {/* Yönetmen ve Oyuncular */}
-          <div className="space-y-2 text-xs">
-            <div>
-              <span className="font-medium text-gray-600">Yönetmen:</span>
-              <span className="ml-1 text-gray-700">{movie.Director}</span>
+            
+            <div className="flex items-center justify-between">
+              <span className={`px-2 py-1 rounded-full text-xs ${
+                theme === 'green-theme' 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'bg-pink-100 text-pink-700'
+              }`}>
+                {movie.Genre.split(',')[0]}
+              </span>
+              <span className="text-xs text-gray-500">
+                Bugün
+              </span>
             </div>
-            <div>
-              <span className="font-medium text-gray-600">Oyuncular:</span>
-              <span className="ml-1 text-gray-700">{movie.Actors}</span>
-            </div>
-          </div>
-
-          {/* Aksiyon Butonları */}
-          <div className="flex gap-2 pt-2">
-            <Button 
-              size="sm" 
-              className="flex-1 bg-purple-600 hover:bg-purple-700"
-              onClick={() => window.open(`https://www.imdb.com/title/${movie.imdbID}`, '_blank')}
-            >
-              <Play className="h-3 w-3 mr-1" />
-              IMDb'de İncele
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={fetchMovieOfDay}
-            >
-              Yeni Film
-            </Button>
           </div>
         </div>
       </CardContent>

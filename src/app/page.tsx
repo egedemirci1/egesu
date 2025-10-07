@@ -42,68 +42,53 @@ export default function HomePage() {
         </div>
 
 
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-stretch">
-          {/* Mobilde: Anı Yıldönümleri En Üstte */}
-          <div className="lg:hidden">
+        {/* Dashboard Grid - 2 satır 3 sütun + 3. sütun 3 satır */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Mobilde: Tek sütun */}
+          <div className="lg:hidden space-y-6">
+            <MovieOfDay />
             <MemoryAnniversaries />
+            <SongOfDay />
+            <UpcomingAnniversaries />
+            <RecentLetters />
+            <CitySuggestions />
+            <Stats />
           </div>
 
-          {/* Sol Kolon */}
-          <div className="flex flex-col space-y-6">
-            <div className="flex-1 min-h-0">
-              <UpcomingAnniversaries />
+          {/* Desktop Layout */}
+          <div className="hidden lg:contents">
+            {/* Sol Kolon - 2 satır */}
+            <div className="flex flex-col gap-6 h-[680px]">
+              <div className="flex-1">
+                <SongOfDay />
+              </div>
+              <div className="flex-1">
+                <MemoryAnniversaries />
+              </div>
             </div>
-            <div className="flex-1 min-h-0">
-              <RecentLetters />
-            </div>
-          </div>
 
-          {/* Orta Kolon */}
-          <div className="flex flex-col space-y-6">
-            {/* Desktop'ta Anı Yıldönümleri */}
-            <div className="hidden lg:block flex-1 min-h-0">
-              <MemoryAnniversaries />
+            {/* Orta Kolon - 2 satır */}
+            <div className="flex flex-col gap-6 h-[680px]">
+              <div className="flex-1">
+                <MovieOfDay />
+              </div>
+              <div className="flex-1">
+                <UpcomingAnniversaries />
+              </div>
             </div>
-            <div className="flex-1 min-h-0">
-              <CitySuggestions />
-            </div>
-          </div>
 
-          {/* Sağ Kolon */}
-          <div className="flex flex-col space-y-6">
-            <div className="flex-1 min-h-0">
-              <SongOfDay />
+            {/* Sağ Kolon - 3 satır */}
+            <div className="flex flex-col gap-6 h-[680px]">
+              <div className="flex-1">
+                <CitySuggestions />
+              </div>
+              <div className="flex-1">
+                <RecentLetters />
+              </div>
+              <div className="flex-1">
+                <Stats />
+              </div>
             </div>
-            <div className="flex-1 min-h-0">
-              <MovieOfDay />
-            </div>
-            <div className="flex-1 min-h-0">
-              <Stats />
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="text-center mb-8">
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => window.location.href = '/letters'}
-              className="px-6 py-3"
-            >
-              <Heart className="h-5 w-5 mr-2" />
-              Mektup Yaz
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => window.location.href = '/anniversaries'}
-              className="px-6 py-3"
-            >
-              <Calendar className="h-5 w-5 mr-2" />
-              Yıldönümü Ekle
-            </Button>
           </div>
         </div>
 

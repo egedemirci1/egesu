@@ -114,6 +114,7 @@ export function MediaDisplay({
     try {
       const response = await fetch(`/api/upload?id=${mediaId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {

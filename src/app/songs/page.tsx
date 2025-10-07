@@ -62,7 +62,7 @@ export default function SongsPage() {
         ? '/api/songs' 
         : `/api/songs?category=${selectedCategory}`;
       
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setSongs(data);
@@ -96,6 +96,7 @@ export default function SongsPage() {
     try {
       const response = await fetch('/api/songs', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -130,6 +131,7 @@ export default function SongsPage() {
     try {
       const response = await fetch(`/api/songs?id=${songId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { SignJWT, jwtVerify } from 'jose';
 
-const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_APP_SESSION_SECRET || 'fallback-secret-key');
+const secret = new TextEncoder().encode(process.env.APP_SESSION_SECRET || 'fallback-secret-key');
 
 export interface SessionData {
   username: string;

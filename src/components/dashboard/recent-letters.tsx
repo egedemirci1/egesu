@@ -24,6 +24,7 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [letters, setLetters] = useState<Letter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (!authLoading) {
@@ -35,9 +36,20 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
     }
   }, [isAuthenticated, authLoading]);
 
+  // Otomatik slider
+  useEffect(() => {
+    const recentLetters = getRecentLetters();
+    if (recentLetters.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % recentLetters.length);
+      }, 3000); // 3 saniyede bir değiştir
+      return () => clearInterval(interval);
+    }
+  }, [letters]);
+
   const fetchLetters = async () => {
     try {
-      const response = await fetch('/api/letters');
+      const response = await fetch('/api/letters', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setLetters(data);
@@ -52,7 +64,7 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
   const getRecentLetters = () => {
     return letters
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 2);
+      .slice(0, 3);
   };
 
   const getTimeAgo = (dateString: string) => {
@@ -173,22 +185,38 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
             </Button>
           </div>
         ) : (
-          <div className="space-y-3 flex-1">
-            {recentLetters.map((letter) => (
-              <div key={letter.id} className="p-3 rounded-lg bg-white/40 hover:bg-white/60 transition-colors cursor-pointer"
-                   onClick={() => window.location.href = '/letters'}>
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-gray-800 text-sm">{letter.title}</h4>
-                  <Badge variant="secondary" className="flex items-center space-x-1 text-xs">
-                    <Clock className="h-3 w-3" />
-                    <span>{getTimeAgo(letter.created_at)}</span>
-                  </Badge>
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full flex items-center">
+              {recentLetters.length > 0 && (
+                <div className="w-full p-2 rounded bg-white/40 hover:bg-white/60 transition-all duration-500 cursor-pointer"
+                     onClick={() => window.location.href = '/letters'}>
+                  <div className="flex items-start justify-between mb-1">
+                    <h4 className="font-medium text-gray-800 text-xs">{recentLetters[currentIndex].title}</h4>
+                    <Badge variant="secondary" className="flex items-center space-x-1 text-xs px-1 py-0.5">
+                      <Clock className="h-3 w-3" />
+                      <span>{getTimeAgo(recentLetters[currentIndex].created_at)}</span>
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600 text-xs leading-tight">
+                    {truncateText(recentLetters[currentIndex].body, 60)}
+                  </p>
+                  {recentLetters.length > 1 && (
+                    <div className="flex justify-center gap-1 mt-2">
+                      {recentLetters.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`h-1 rounded-full transition-all duration-300 ${
+                            index === currentIndex 
+                              ? `w-4 ${theme === 'green-theme' ? 'bg-green-600' : 'bg-pink-600'}`
+                              : 'w-1 bg-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-gray-600 text-xs leading-relaxed">
-                  {truncateText(letter.body, 80)}
-                </p>
-              </div>
-            ))}
+              )}
+            </div>
           </div>
         )}
       </CardContent>

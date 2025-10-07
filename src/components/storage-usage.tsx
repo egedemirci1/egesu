@@ -30,7 +30,7 @@ export function StorageUsage() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch('/api/storage/usage');
+      const response = await fetch('/api/storage/usage', { credentials: 'include' });
       const data = await response.json();
 
       if (response.ok) {

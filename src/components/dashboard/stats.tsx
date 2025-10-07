@@ -46,9 +46,9 @@ export function Stats({ className = '' }: StatsProps) {
   const fetchStats = async () => {
     try {
       const [memoriesRes, lettersRes, anniversariesRes] = await Promise.all([
-        fetch('/api/memories'),
-        fetch('/api/letters'),
-        fetch('/api/anniversaries')
+        fetch('/api/memories', { credentials: 'include' }),
+        fetch('/api/letters', { credentials: 'include' }),
+        fetch('/api/anniversaries', { credentials: 'include' })
       ]);
 
       const [memories, letters, anniversaries] = await Promise.all([
@@ -139,81 +139,46 @@ export function Stats({ className = '' }: StatsProps) {
     <Card className={`bg-white/60 backdrop-blur-sm h-full flex flex-col ${
       theme === 'green-theme' ? 'border-green-200' : 'border-pink-200'
     } ${className}`}>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <BarChart3 className={`h-5 w-5 ${
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center space-x-2 text-base">
+          <BarChart3 className={`h-4 w-4 ${
             theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
           }`} />
           <span>İstatistikler</span>
         </CardTitle>
-        <CardDescription>
-          Aşk hikayenizin sayıları
-        </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <div className="grid grid-cols-2 gap-4 flex-1">
-          <div className="text-center p-3 rounded-lg bg-white/40">
-            <div className="flex items-center justify-center mb-2">
-              <Image className={`h-4 w-4 ${
-                theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
-              }`} />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">{stats.totalMemories}</div>
-            <div className="text-xs text-gray-600">Toplam Anı</div>
-            {stats.recentMemories > 0 && (
-              <Badge variant="secondary" className="mt-1 text-xs">
-                +{stats.recentMemories} bu ay
-              </Badge>
-            )}
+      <CardContent className="flex-1 overflow-hidden p-3 pt-0">
+        <div className="grid grid-cols-2 gap-1 h-full">
+          <div className="text-center p-1 rounded bg-white/40">
+            <Image className={`h-2.5 w-2.5 mx-auto ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <div className="text-sm font-bold text-gray-800 leading-tight">{stats.totalMemories}</div>
+            <div className="text-xs text-gray-600 leading-tight">Anı</div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-white/40">
-            <div className="flex items-center justify-center mb-2">
-              <Mail className={`h-4 w-4 ${
-                theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
-              }`} />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">{stats.totalLetters}</div>
-            <div className="text-xs text-gray-600">Mektup</div>
+          <div className="text-center p-1 rounded bg-white/40">
+            <Mail className={`h-2.5 w-2.5 mx-auto ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <div className="text-sm font-bold text-gray-800 leading-tight">{stats.totalLetters}</div>
+            <div className="text-xs text-gray-600 leading-tight">Mektup</div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-white/40">
-            <div className="flex items-center justify-center mb-2">
-              <Heart className={`h-4 w-4 ${
-                theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
-              }`} />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">{stats.totalAnniversaries}</div>
-            <div className="text-xs text-gray-600">Yıldönümü</div>
+          <div className="text-center p-1 rounded bg-white/40">
+            <Heart className={`h-2.5 w-2.5 mx-auto ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <div className="text-sm font-bold text-gray-800 leading-tight">{stats.totalAnniversaries}</div>
+            <div className="text-xs text-gray-600 leading-tight">Yıldönümü</div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-white/40">
-            <div className="flex items-center justify-center mb-2">
-              <MapPin className={`h-4 w-4 ${
-                theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
-              }`} />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">{stats.visitedCities}</div>
-            <div className="text-xs text-gray-600">Şehir</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {getProgressPercentage(stats.visitedCities, stats.totalCities)}% tamamlandı
-            </div>
-          </div>
-        </div>
-
-        {/* Şehir ilerleme çubuğu */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
-            <span>Türkiye Keşfi</span>
-            <span>{stats.visitedCities}/{stats.totalCities}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full transition-all duration-500 ${
-                theme === 'green-theme' ? 'bg-green-500' : 'bg-pink-500'
-              }`}
-              style={{ width: `${getProgressPercentage(stats.visitedCities, stats.totalCities)}%` }}
-            ></div>
+          <div className="text-center p-1 rounded bg-white/40">
+            <MapPin className={`h-2.5 w-2.5 mx-auto ${
+              theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
+            }`} />
+            <div className="text-sm font-bold text-gray-800 leading-tight">{stats.visitedCities}</div>
+            <div className="text-xs text-gray-600 leading-tight">Şehir</div>
           </div>
         </div>
       </CardContent>

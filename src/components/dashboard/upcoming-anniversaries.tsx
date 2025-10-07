@@ -37,7 +37,7 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
 
   const fetchAnniversaries = async () => {
     try {
-      const response = await fetch('/api/anniversaries');
+      const response = await fetch('/api/anniversaries', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setAnniversaries(data);
@@ -169,15 +169,15 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
           Önümüzdeki 90 gün içindeki özel günler
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 overflow-hidden">
         {upcomingAnniversaries.length === 0 ? (
-          <div className="text-center py-6 flex-1 flex flex-col justify-center">
+          <div className="text-center py-6 h-full flex flex-col justify-center">
             <Heart className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-gray-500 text-sm">Yaklaşan yıldönümü bulunmuyor</p>
             <p className="text-gray-400 text-xs mt-1">Yeni yıldönümü ekleyerek başlayın</p>
           </div>
         ) : (
-          <div className="space-y-3 flex-1">
+          <div className="h-full overflow-y-auto space-y-2">
             {upcomingAnniversaries.map((anniversary) => {
               const daysUntil = getDaysUntilAnniversary(anniversary.date);
               const anniversaryDate = new Date(anniversary.date);
@@ -189,7 +189,7 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
               }
               
               return (
-                <div key={anniversary.id} className="flex items-center justify-between p-3 rounded-lg bg-white/40">
+                <div key={anniversary.id} className="flex items-center justify-between p-2 rounded-lg bg-white/40">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-full ${
                       theme === 'green-theme' 
@@ -199,7 +199,7 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
                       <Heart className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">{anniversary.title}</p>
+                      <p className="font-medium text-gray-800 text-sm">{anniversary.title}</p>
                       <p className="text-sm text-gray-600">
                         {anniversaryDate.toLocaleDateString('tr-TR', {
                           day: 'numeric',
@@ -209,10 +209,13 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
                     </div>
                   </div>
                   <div className="text-right">
-                    <Badge variant="secondary" className="flex items-center space-x-1">
-                      <Clock className="h-3 w-3" />
-                      <span>{daysUntil} gün</span>
-                    </Badge>
+                    <div className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                      theme === 'green-theme' 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-pink-100 text-pink-700'
+                    }`}>
+                      {daysUntil} gün
+                    </div>
                   </div>
                 </div>
               );

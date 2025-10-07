@@ -22,7 +22,7 @@ export default function SettingsPage() {
     setIsExporting(true);
     
     try {
-      const response = await fetch('/api/export');
+      const response = await fetch('/api/export', { credentials: 'include' });
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);

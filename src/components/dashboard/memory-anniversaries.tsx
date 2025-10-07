@@ -52,7 +52,7 @@ export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps
 
   const fetchMemories = async () => {
     try {
-      const response = await fetch('/api/memories');
+      const response = await fetch('/api/memories', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setMemories(data);
@@ -207,15 +207,15 @@ export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps
           Fotoğraflı anıların yaklaşan yıldönümleri (90 gün)
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 overflow-hidden">
         {memoryAnniversaries.length === 0 ? (
-          <div className="text-center py-6 flex-1 flex flex-col justify-center">
+          <div className="text-center py-6 h-full flex flex-col justify-center">
             <Image className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-gray-500 text-sm">Yaklaşan anı yıldönümü bulunmuyor</p>
             <p className="text-gray-400 text-xs mt-1">Fotoğraflı anılarınızın yıldönümlerini takip edin</p>
           </div>
         ) : (
-          <div className="flex-1">
+          <div className="h-full">
             <Carousel
               items={memoryAnniversaries.map((memory) => {
                 const daysUntil = getDaysUntilAnniversary(memory.date);
@@ -229,52 +229,42 @@ export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps
                 }
                 
                 return (
-                  <div key={memory.id} className="p-3 rounded-lg bg-white/40 hover:bg-white/60 transition-colors cursor-pointer h-full"
+                  <div key={memory.id} className="p-1.5 rounded bg-white/40 hover:bg-white/60 transition-colors cursor-pointer h-full"
                        onClick={() => window.location.href = '/'}>
-                    <div className="flex items-start space-x-3 h-full">
+                    <div className="flex items-center space-x-2 h-full">
                       <div className="flex-shrink-0">
                         {memory.media && memory.media.length > 0 ? (
                           <img
                             src={memory.media[0].public_url}
                             alt={memory.title}
-                            className="w-12 h-12 rounded-lg object-cover"
+                            className="w-8 h-8 rounded object-cover"
                           />
                         ) : (
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          <div className={`w-8 h-8 rounded flex items-center justify-center ${
                             theme === 'green-theme' 
                               ? 'bg-green-100 text-green-600' 
                               : 'bg-pink-100 text-pink-600'
                           }`}>
-                            <Image className="h-6 w-6" />
+                            <Image className="h-4 w-4" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-medium text-gray-800 text-sm truncate">{memory.title}</h4>
-                          <Badge variant="secondary" className="flex items-center space-x-1 text-xs">
-                            <Clock className="h-3 w-3" />
-                            <span>{daysUntil} gün</span>
-                          </Badge>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-gray-800 text-xs truncate">{memory.title}</h4>
+                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">
+                            {daysUntil}g
+                          </span>
                         </div>
-                        <div className="flex items-center space-x-2 text-xs text-gray-600">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>{anniversaryDate.toLocaleDateString('tr-TR', {
-                              day: 'numeric',
-                              month: 'long'
-                            })}</span>
-                          </div>
+                        <div className="flex items-center space-x-1 text-xs text-gray-500 mt-0.5">
+                          <span>{anniversaryDate.toLocaleDateString('tr-TR', {
+                            day: 'numeric',
+                            month: 'short'
+                          })}</span>
                           <span>•</span>
-                          <div className="flex items-center space-x-1">
-                            <MapPin className="h-3 w-3" />
-                            <span>{getCityName(memory.city_code)}</span>
-                          </div>
-                        </div>
-                        <div className="mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {yearsAgo} yıl önce
-                          </Badge>
+                          <span>{getCityName(memory.city_code)}</span>
+                          <span>•</span>
+                          <span>{yearsAgo}y</span>
                         </div>
                       </div>
                     </div>

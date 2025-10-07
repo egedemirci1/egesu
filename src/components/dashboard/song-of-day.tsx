@@ -41,7 +41,7 @@ export function SongOfDay({ className = '' }: SongOfDayProps) {
 
   const fetchSongs = async () => {
     try {
-      const response = await fetch('/api/songs');
+      const response = await fetch('/api/songs', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setSongs(data);

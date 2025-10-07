@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { SignJWT } from 'jose';
+
+const secret = new TextEncoder().encode(process.env.APP_SESSION_SECRET || 'fallback-secret-key');
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +34,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    // Create JWT token on the server (secure)
+    const token = await new SignJWT({ 
+      username, 
+      isLoggedIn: true,
+      sessionId: Math.random().toString(36).substring(2, 15),
+      createdAt: Date.now()
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('8h')
+      .sign(secret);
+
+    // Set the token in a secure HTTP-only cookie
+    const response = NextResponse.json({ success: true, token });
+    
+    // Set cookie with secure settings
+    response.cookies.set('egesu_session_token', token, {
+      httpOnly: true, // XSS koruması - JavaScript erişemez
+      secure: process.env.NODE_ENV === 'production', // Production'da HTTPS zorunlu
+      sameSite: 'lax', // CSRF koruması
+      maxAge: 8 * 60 * 60, // 8 saat
+      path: '/',
+    });
+
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

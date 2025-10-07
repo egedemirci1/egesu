@@ -39,7 +39,7 @@ export default function LettersPage() {
 
   const fetchLetters = async () => {
     try {
-      const response = await fetch('/api/letters');
+      const response = await fetch('/api/letters', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setLetters(data);
@@ -60,6 +60,7 @@ export default function LettersPage() {
     try {
       const response = await fetch(`/api/letters?id=${letterId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -86,6 +87,7 @@ export default function LettersPage() {
     try {
       const response = await fetch('/api/letters', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

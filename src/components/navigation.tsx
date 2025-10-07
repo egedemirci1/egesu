@@ -25,7 +25,7 @@ export function Navigation() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/logout', { method: 'POST' });
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
       
       // "Beni hatırla" verilerini koruyoruz - logout yapsa da kullanıcı adı hatırlansın
       // localStorage temizlenmiyor, böylece "Beni hatırla" işaretliyse kullanıcı adı kalıyor
