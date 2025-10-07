@@ -179,7 +179,7 @@ export function SongOfDay({ className = '' }: SongOfDayProps) {
           </div>
         </CardTitle>
         <CardDescription>
-          Her gün farklı bir şarkı keşfedin
+          Günlük şarkı dozumuz
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">

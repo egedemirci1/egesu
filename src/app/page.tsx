@@ -37,7 +37,7 @@ export default function HomePage() {
             Hoş Geldin! EgEsu
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-3">
-            Aşk Hikayenizin Merkezi
+            Aşkımızın Merkezi
           </p>
         </div>
 

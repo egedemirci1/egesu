@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Mail, Clock, Plus, Eye, Lock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Mail, Clock, Plus, Eye, Lock, KeyRound } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { useAuth } from '@/lib/auth';
 
@@ -25,6 +26,8 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
   const [letters, setLetters] = useState<Letter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (!authLoading) {
@@ -87,6 +90,28 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
     return text.substring(0, maxLength) + '...';
   };
 
+  const hashPassword = async (pwd: string): Promise<string> => {
+    const msgBuffer = new TextEncoder().encode(pwd);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const handleUnlock = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basit string karşılaştırma kullanarak test edelim
+    if (password === 'pırt') {
+      setIsUnlocked(true);
+      setPassword('');
+    } else {
+      console.log('Girilen:', password);
+      console.log('Beklenen:', 'pırt');
+      alert('Yanlış şifre!');
+      setPassword('');
+    }
+  };
+
   const recentLetters = getRecentLetters();
 
   if (!isAuthenticated) {
@@ -99,17 +124,14 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
             <Lock className={`h-5 w-5 ${
               theme === 'green-theme' ? 'text-green-600' : 'text-pink-600'
             }`} />
-            <span>Yeni Mektuplar</span>
+            <span>Son Mektuplar</span>
           </CardTitle>
-          <CardDescription>
-            Son yazılan mektuplar
-          </CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <div className="text-center py-6 flex-1 flex flex-col justify-center">
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
             <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-gray-500 text-sm">Giriş yapın</p>
-            <p className="text-gray-400 text-xs mt-1">Mektupları görüntülemek için giriş yapın</p>
+            <p className="text-gray-400 text-xs mt-1">Mektupları görmek için</p>
           </div>
         </CardContent>
       </Card>
@@ -183,6 +205,26 @@ export function RecentLetters({ className = '' }: RecentLettersProps) {
               <Plus className="h-3 w-3 mr-1" />
               Mektup Yaz
             </Button>
+          </div>
+        ) : !isUnlocked ? (
+          <div className="flex-1 flex items-center justify-center px-3">
+            <form onSubmit={handleUnlock} className="w-full space-y-2">
+              <Input
+                type="password"
+                placeholder="Şifre"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="text-center h-7 text-xs"
+              />
+              <Button 
+                type="submit" 
+                className="w-full h-6 text-xs"
+                size="sm"
+              >
+                <KeyRound className="h-3 w-3 mr-1" />
+                Kilidi Aç
+              </Button>
+            </form>
           </div>
         ) : (
           <div className="flex-1 overflow-hidden">

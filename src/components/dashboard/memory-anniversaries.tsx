@@ -8,7 +8,6 @@ import { Image, Calendar, Clock, Eye, MapPin, Lock } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { useAuth } from '@/lib/auth';
 import { CITIES } from '@/constants/cities';
-import { Carousel } from '@/components/ui/carousel';
 
 interface MediaFile {
   id: string;
@@ -39,6 +38,7 @@ export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (!authLoading) {
@@ -49,6 +49,17 @@ export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps
       }
     }
   }, [isAuthenticated, authLoading]);
+
+  // Otomatik slider
+  useEffect(() => {
+    const memoryAnniversaries = getMemoryAnniversaries();
+    if (memoryAnniversaries.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % memoryAnniversaries.length);
+      }, 3000); // 3 saniyede bir değiştir
+      return () => clearInterval(interval);
+    }
+  }, [memories]);
 
   const fetchMemories = async () => {
     try {
@@ -215,69 +226,87 @@ export function MemoryAnniversaries({ className = '' }: MemoryAnniversariesProps
             <p className="text-gray-400 text-xs mt-1">Fotoğraflı anılarınızın yıldönümlerini takip edin</p>
           </div>
         ) : (
-          <div className="h-full">
-            <Carousel
-              items={memoryAnniversaries.map((memory) => {
-                const daysUntil = getDaysUntilAnniversary(memory.date);
-                const yearsAgo = getYearsAgo(memory.date);
-                const anniversaryDate = new Date(memory.date);
-                const currentYear = new Date().getFullYear();
-                anniversaryDate.setFullYear(currentYear);
-                
-                if (anniversaryDate < new Date()) {
-                  anniversaryDate.setFullYear(currentYear + 1);
-                }
-                
-                return (
-                  <div key={memory.id} className="p-1.5 rounded bg-white/40 hover:bg-white/60 transition-colors cursor-pointer h-full"
-                       onClick={() => window.location.href = '/'}>
-                    <div className="flex items-center space-x-2 h-full">
+          <div className="h-full flex items-center justify-center">
+            {memoryAnniversaries.length > 0 && (() => {
+              const memory = memoryAnniversaries[currentIndex];
+              const daysUntil = getDaysUntilAnniversary(memory.date);
+              const yearsAgo = getYearsAgo(memory.date);
+              const anniversaryDate = new Date(memory.date);
+              const currentYear = new Date().getFullYear();
+              anniversaryDate.setFullYear(currentYear);
+              
+              if (anniversaryDate < new Date()) {
+                anniversaryDate.setFullYear(currentYear + 1);
+              }
+              
+              return (
+                <div className="w-full h-full flex flex-col">
+                  <div className="flex-1 p-4 rounded-lg bg-white/40 hover:bg-white/60 transition-all duration-500 cursor-pointer flex items-center"
+                       onClick={() => window.location.href = '/memories'}>
+                    <div className="flex items-center space-x-4 w-full">
                       <div className="flex-shrink-0">
                         {memory.media && memory.media.length > 0 ? (
                           <img
                             src={memory.media[0].public_url}
                             alt={memory.title}
-                            className="w-8 h-8 rounded object-cover"
+                            className="w-24 h-24 rounded-lg object-cover shadow-sm"
                           />
                         ) : (
-                          <div className={`w-8 h-8 rounded flex items-center justify-center ${
+                          <div className={`w-24 h-24 rounded-lg flex items-center justify-center ${
                             theme === 'green-theme' 
                               ? 'bg-green-100 text-green-600' 
                               : 'bg-pink-100 text-pink-600'
                           }`}>
-                            <Image className="h-4 w-4" />
+                            <Image className="h-12 w-12" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-gray-800 text-xs truncate">{memory.title}</h4>
-                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">
-                            {daysUntil}g
-                          </span>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800 text-base truncate">{memory.title}</h4>
                         </div>
-                        <div className="flex items-center space-x-1 text-xs text-gray-500 mt-0.5">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
                           <span>{anniversaryDate.toLocaleDateString('tr-TR', {
                             day: 'numeric',
-                            month: 'short'
+                            month: 'long'
                           })}</span>
                           <span>•</span>
                           <span>{getCityName(memory.city_code)}</span>
-                          <span>•</span>
-                          <span>{yearsAgo}y</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className={`text-sm font-medium px-3 py-1 rounded ${
+                            theme === 'green-theme' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-pink-100 text-pink-700'
+                          }`}>
+                            {daysUntil} gün sonra
+                          </span>
+                          <span className="text-xs text-gray-500">{yearsAgo}. yıl</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-              autoPlay={true}
-              autoPlayInterval={4000}
-              className="h-full"
-            />
+                  {memoryAnniversaries.length > 1 && (
+                    <div className="flex justify-center gap-1 mt-2">
+                      {memoryAnniversaries.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`h-1 rounded-full transition-all duration-300 ${
+                            index === currentIndex 
+                              ? `w-4 ${theme === 'green-theme' ? 'bg-green-600' : 'bg-pink-600'}`
+                              : 'w-1 bg-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
+

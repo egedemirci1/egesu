@@ -177,8 +177,9 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
             <p className="text-gray-400 text-xs mt-1">Yeni yıldönümü ekleyerek başlayın</p>
           </div>
         ) : (
-          <div className="h-full overflow-y-auto space-y-2">
-            {upcomingAnniversaries.map((anniversary) => {
+          <div className="h-full flex items-center">
+            <div className="w-full">
+              {upcomingAnniversaries.map((anniversary) => {
               const daysUntil = getDaysUntilAnniversary(anniversary.date);
               const anniversaryDate = new Date(anniversary.date);
               const currentYear = new Date().getFullYear();
@@ -219,7 +220,8 @@ export function UpcomingAnniversaries({ className = '' }: UpcomingAnniversariesP
                   </div>
                 </div>
               );
-            })}
+              })}
+            </div>
           </div>
         )}
       </CardContent>

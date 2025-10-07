@@ -197,7 +197,7 @@ export function MovieOfDay({ className = '' }: MovieOfDayProps) {
           </div>
         </CardTitle>
         <CardDescription>
-          Her gün farklı bir film keşfedin
+          Bugün bunu izleyelim
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden">
